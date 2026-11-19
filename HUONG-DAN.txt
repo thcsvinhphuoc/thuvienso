@@ -1,0 +1,221 @@
+HƯỚNG DẪN CÀI ĐẶT THƯ VIỆN SỐ (Google Sheets + GitHub Pages + trang trường)
+=========================================================================
+
+BƯỚC 0 – DÙNG THỬ NGAY
+  Mở index.html bằng Chrome/Edge. Trang chạy ở "chế độ dùng thử" với dữ liệu mẫu.
+  Vào Quản trị (mật khẩu: admin123) để thử biên mục, mượn trả, nhập Excel…
+
+BƯỚC 1 – TẠO NƠI LƯU DỮ LIỆU (Google Sheets)
+  1. Vào drive.google.com (nên dùng tài khoản Google của trường) > Mới > Google Trang tính.
+     Đặt tên: "Du lieu Thu vien".
+  2. Menu Tiện ích mở rộng > Apps Script.
+  3. Xóa hết mã có sẵn, dán TOÀN BỘ nội dung file Code.gs vào > bấm biểu tượng Lưu.
+  4. Ở thanh công cụ chọn hàm "setup" > bấm Chạy > Xem xét quyền > chọn tài khoản >
+     Nâng cao > Đi tới … (không an toàn) > Cho phép.
+     → Trong Google Sheets sẽ xuất hiện các trang: DanhMuc, Sach, BanSach, BanDoc, MuonTra, CaiDat.
+  5. Bấm Triển khai > Tùy chọn triển khai mới > bánh răng chọn "Ứng dụng web":
+       - Thực thi dưới dạng: Tôi
+       - Người có quyền truy cập: Bất kỳ ai
+     Bấm Triển khai > sao chép "URL ứng dụng web" (dạng https://script.google.com/macros/s/…/exec).
+
+BƯỚC 2 – GẮN URL VÀO TRANG WEB
+  1. Mở index.html bằng Notepad (chuột phải > Open with > Notepad).
+  2. Tìm dòng:   const API_URL = '';
+     Sửa thành:  const API_URL = 'https://script.google.com/macros/s/…/exec';
+  3. Lưu lại. (Muốn thử trước: vào Quản trị > Thiết lập > dán URL > "Kiểm tra & dùng URL này".)
+  4. Đăng nhập Quản trị bằng mật khẩu admin123 rồi ĐỔI MẬT KHẨU NGAY trong Thiết lập.
+
+BƯỚC 3 – ĐƯA LÊN MẠNG VÀ NHÚNG VÀO TRANG TRƯỜNG
+  1. Tải index.html lên GitHub (repo mới, ví dụ "thu-vien"), bật GitHub Pages
+     (Settings > Pages > Branch: main > Save). Được địa chỉ dạng
+     https://<tên-tài-khoản>.github.io/thu-vien/
+  2. Trên trang quản trị của website trường (Viettel), tạo trang/bài viết mới,
+     chuyển sang chế độ HTML và dán:
+     <iframe src="https://<tên-tài-khoản>.github.io/thu-vien/" style="width:100%;height:1600px;border:0"></iframe>
+     Học sinh chỉ thấy phần tra cứu; thủ thư bấm "Quản trị" để đăng nhập.
+     (Nên mở trang quản trị trực tiếp bằng địa chỉ GitHub khi làm việc để có màn hình rộng và in nhãn được.)
+
+NHẬP DỮ LIỆU BAN ĐẦU
+  - Danh sách học sinh: Quản trị > Tài khoản bạn đọc > "File mẫu" > điền > "Nhập từ Excel".
+    File danh sách lớp có sẵn cũng được, miễn có cột "Họ và tên" và "Lớp".
+  - Sách: Quản trị > Biên mục sách > "File mẫu" > điền (cột Số lượng = số cuốn) > "Nhập từ Excel".
+    Hệ thống tự cấp số ĐKCB (VP00001, VP00002…), có thể đổi tiền tố trong Thiết lập.
+  - Chuyển dữ liệu đã nhập thử: ở bản dùng thử vào Thiết lập > "Tải bản sao lưu (JSON)",
+    sau khi kết nối Google Sheets thì vào Thiết lập > "Khôi phục từ bản sao lưu".
+
+LƯU Ý
+  - Khi sửa Code.gs: Triển khai > Quản lý triển khai > bút chì > Phiên bản: Phiên bản mới > Triển khai
+    (URL giữ nguyên).
+  - Dữ liệu nằm trong Google Sheets của trường: có thể mở xem, tải về Excel bất cứ lúc nào.
+    Không sửa dòng tiêu đề (dòng 1) của các trang tính.
+  - Nhập/xuất Excel cần có Internet (trang tự tải thư viện Excel khi bấm nút).
+
+=========================================================================
+GIAI ĐOẠN 2 – CÁC CHỨC NĂNG MỚI
+=========================================================================
+Nếu đã cài Code.gs bản cũ lên Apps Script:
+  1. Mở Apps Script, xóa mã cũ, dán Code.gs MỚI vào, Lưu.
+  2. Triển khai > Quản lý triển khai > bút chì > Phiên bản: "Phiên bản mới" > Triển khai.
+     (URL giữ nguyên; các trang tính mới BaiViet, TaiNguyen, HoiDap, LienKet, DanhGia,
+      MinhChung sẽ tự được tạo ở lần truy cập đầu tiên.)
+  3. Tải index.html mới lên GitHub (ghi đè file cũ), nhớ giữ dòng const API_URL = '…'.
+
+Trang công khai: Tin tức, Hoạt động thư viện, Hướng dẫn (Nội quy, Câu hỏi thường gặp),
+Thư viện số (ebook, video, podcast, tài liệu, flashcard, thí nghiệm ảo, trắc nghiệm).
+
+Quản trị:
+  - Tài nguyên số: dán link YouTube / Google Drive / Google Docs, Slides, Forms / PDF / MP3 / trang web.
+    File trên Drive phải chia sẻ "Bất kỳ ai có đường liên kết" thì học sinh mới xem được.
+  - Tin tức – Bài viết, Hỏi đáp, Liên kết nhanh: nội dung hiển thị trên trang công khai.
+  - Đánh giá (TT16): tự đánh giá 5 tiêu chuẩn, lưu theo năm học, in phiếu (chọn "Lưu dưới dạng PDF").
+  - Mẫu in & sổ sách: nhãn gáy sách có mã vạch (4 mẫu), thẻ thư viện, sổ đăng ký cá biệt,
+    sổ mượn trả, danh sách quá hạn theo lớp. Khi in nhãn chọn tỷ lệ 100%.
+    Mã vạch dùng chuẩn Code 39 – máy quét mã vạch thông thường đọc được, quét vào ô
+    "Trả sách nhanh" hoặc ô thêm sách khi cho mượn.
+  - Minh chứng: lưu link minh chứng theo tiêu chí TT16 / DTI; nút "Sinh báo cáo" tạo báo cáo
+    kho tài nguyên, hoạt động người dùng, học liệu số từ số liệu hệ thống.
+  - Thiết lập: thêm Nội quy, khẩu hiệu & ảnh banner trang chủ, cơ quan cấp trên và địa danh
+    (in trên đầu/cuối các báo cáo).
+
+=========================================================================
+GIAI ĐOẠN 3 – CỔNG BẠN ĐỌC, KIỂM KÊ, THANH LÝ, TRỢ LÝ
+=========================================================================
+Cập nhật: dán Code.gs mới vào Apps Script > Triển khai > Quản lý triển khai > bút chì >
+Phiên bản mới > Triển khai (URL giữ nguyên). Tải index.html mới lên GitHub (giữ dòng API_URL).
+
+Cổng bạn đọc (nút "👤 Bạn đọc" góc trên trang công khai):
+  - Đăng nhập bằng Mã bạn đọc + mật khẩu. Mật khẩu lần đầu = ngày sinh viết liền ddmmyyyy
+    (vd 15032012); nếu học sinh chưa có ngày sinh trong hệ thống thì mật khẩu = mã bạn đọc.
+    => NÊN nhập ngày sinh khi nhập danh sách học sinh từ Excel.
+  - Học sinh tự đổi mật khẩu được. Quên mật khẩu: Quản trị > Tài khoản bạn đọc > Sửa >
+    nhập "Mật khẩu Cổng bạn đọc" mới (để trống = quay về mặc định).
+  - Xem sách đang mượn, hạn trả, lịch sử; bấm "📌 Đặt mượn" ở trang Tra cứu để đặt trước.
+  - Yêu cầu đặt mượn hiện ở Quản trị > Mượn – Trả sách: "Cho mượn" đưa sách vào phiếu,
+    hoặc "Từ chối".
+
+Kiểm kê sách: tạo đợt > quét mã vạch từng cuốn (hoặc dán danh sách / nhập Excel) > Lưu
+  (tự lưu mỗi 25 mã) > xem tab "Chưa thấy" > Chốt kiểm kê (có thể chuyển bản thiếu sang "Mất")
+  > In biên bản kiểm kê.
+
+Thanh lý sách: lập biên bản (quét/dán số ĐKCB hoặc thêm nhanh các bản "Hỏng"/"Mất") >
+  bản sách chuyển sang "Thanh lý" > in biên bản. Xóa biên bản sẽ trả sách về tình trạng cũ.
+
+Trợ lý thư viện (nút góc dưới phải trang công khai): trả lời tự động theo dữ liệu thư viện
+  (giờ mở cửa, quy định mượn, Hỏi đáp, tìm sách và tài nguyên số). Không dùng AI bên ngoài,
+  nên chỉ trả lời được những gì có trong dữ liệu. Muốn trợ lý trả lời thêm câu nào, hãy thêm
+  vào Quản trị > Hỏi đáp.
+
+Lượt truy cập website được đếm theo ngày (Tổng quan) và đưa vào Báo cáo hoạt động (DTI 3.3).
+
+=========================================================================
+GIAI ĐOẠN 4 – HỖ TRỢ NGHIỆP VỤ CHO NGƯỜI CHƯA HỌC THƯ VIỆN
+=========================================================================
+(Chỉ cần thay index.html; Code.gs không đổi so với giai đoạn 3.)
+  - Tổng quan: khung "Bắt đầu nhanh" 9 bước (tự đánh dấu khi xong) và "Việc cần làm tháng này".
+  - Sổ tay nghiệp vụ: giải thích ĐKCB, biên mục, phân loại, xếp giá, xử lý sách mới, kiểm kê,
+    thanh lý, hồ sơ sổ sách, tiết đọc; lịch công tác 12 tháng; in/tải Word Kế hoạch năm học.
+  - Thêm sách: ô ISBN + nút "Tự điền" (lấy thông tin từ Google Books / Open Library, cần Internet;
+    sách Việt Nam có thể không có dữ liệu). Số phân loại có gợi ý DDC; để trống sẽ tự gợi ý theo môn.
+  - Mượn – Trả: "Cho mượn theo lớp" (cấp phát SGK cả lớp, in danh sách ký nhận) và
+    "Thu hồi theo lớp".
+  - Tài khoản bạn đọc: "Lên lớp" đầu năm (8A1 → 9A1; lớp 9 ra trường). Nên Tải bản sao lưu trước.
+  - Mẫu in & sổ sách: thêm Sổ đăng ký tổng quát và Kế hoạch hoạt động năm học.
+
+=========================================================================
+QUÉT MÃ VẠCH BẰNG ĐIỆN THOẠI (cho nhân viên thư viện)
+=========================================================================
+(Chỉ cần thay index.html.)
+1. Trên điện thoại mở bằng Chrome địa chỉ GitHub Pages của trang, thêm  #/admin/quet  vào cuối,
+   ví dụ: https://<tên-tài-khoản>.github.io/thu-vien/#/admin/quet
+   (KHÔNG mở qua khung nhúng trên website trường – camera bị chặn trong khung nhúng.)
+2. Đăng nhập, đánh dấu "Ghi nhớ đăng nhập trên thiết bị này".
+3. Chrome › ⋮ › "Thêm vào màn hình chính" để có biểu tượng mở nhanh như một ứng dụng.
+4. Bấm "Bật camera", cho phép quyền camera.
+   - Cho mượn: quét THẺ BẠN ĐỌC → quét từng cuốn sách → bấm "Xác nhận cho mượn".
+   - Trả sách: chuyển tab "Trả sách", quét lần lượt từng cuốn – mỗi lần quét là trả xong.
+   Quét đúng: máy rung + tiếng bíp cao; sai: tiếng trầm và dòng báo đỏ.
+Nút 📷 cũng có ở trang Mượn – Trả, Kiểm kê, Thanh lý và ô ISBN khi thêm sách.
+Mẹo: giữ máy cách nhãn 10–20 cm, đủ sáng, mã vạch nằm ngang trong khung. Nhãn mẫu 2 hoặc
+mẫu 4 có mã vạch to, dễ quét nhất. Không quét được thì gõ số ĐKCB vào ô bên dưới.
+Điện thoại Android + Chrome dùng bộ quét có sẵn của máy (nhanh); iPhone dùng chế độ
+tương thích (cần Internet để tải bộ quét lần đầu).
+
+=========================================================================
+DÙNG MÃ VẠCH CŨ ĐÃ DÁN TRÊN SÁCH & NHẬP SÁCH ĐANG CHO MƯỢN TỪ TRƯỚC
+=========================================================================
+(Chỉ cần thay index.html.) Mã vạch cũ được dùng NGUYÊN VẸN làm số ĐKCB – không cần dán nhãn mới.
+Cách 1 – Quét dần khi cho mượn / trả: ở Mượn – Trả (hoặc trang Quét bằng điện thoại), chọn bạn đọc
+  rồi quét mã cũ. Nếu mã chưa có, hệ thống hỏi "đây là cuốn sách nào?" → chọn sách có sẵn hoặc
+  gõ tên sách mới → mã được thêm vào kho và vào phiếu mượn.
+Cách 2 – Khi thêm sách: ô "Mã vạch có sẵn trên sách": quét/dán các mã, mỗi dòng một mã.
+  Nhập từ Excel: thêm cột "Mã vạch" (nhiều mã cách nhau dấu phẩy).
+Cách 3 – Sách đã cho mượn trước khi dùng phần mềm:
+  a) Nhiều phiếu: Mượn – Trả › "⬇ Mẫu" tải file Excel mẫu, điền Mã bạn đọc (hoặc Họ tên + Lớp),
+     Mã vạch, Tên sách, Ngày mượn, Hạn trả › "📥 Nhập phiếu mượn cũ". Hệ thống tự tạo bạn đọc,
+     sách, bản sách còn thiếu; xem trước từng dòng (dòng lỗi bị bỏ qua) rồi mới ghi.
+  b) Từng phiếu: "📝 Ghi mượn từ trước" › chọn ngày đã cho mượn và hạn trả › chọn bạn đọc,
+     quét mã sách › Xác nhận cho mượn.
+Kiểm kê: mã cũ chưa có trong kho hiện ở tab "Mã lạ" kèm nút "➕ Thêm vào kho".
+
+=========================================================================
+APP ĐIỆN THOẠI "THƯ VIỆN" (cài từ trang web)
+=========================================================================
+1. Tải lên GitHub (cùng thư mục với index.html) các file:
+   index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png,
+   icon-maskable-192.png, icon-maskable-512.png
+2. Trên điện thoại mở bằng Chrome:  https://<tên-tài-khoản>.github.io/<tên-repo>/#/admin/quet
+   Đăng nhập (đánh dấu Ghi nhớ đăng nhập) › bấm "Cài app" (hoặc ⋮ › Cài đặt ứng dụng).
+   iPhone: Safari › nút Chia sẻ › Thêm vào MH chính.
+3. Biểu tượng "Thư viện" xuất hiện trên màn hình chính, mở thẳng Quầy quét với 5 chế độ:
+   📤 Mượn: quét thẻ bạn đọc › quét sách › (sửa hạn trả nếu cần) › Xác nhận cho mượn.
+   📥 Trả: quét lần lượt từng cuốn, mỗi lần quét là trả xong.
+   📦 Nhập kho: quét ISBN › tự điền thông tin (cần Internet) › lưu sách; sau đó quét mã vạch cũ
+       trên từng cuốn để thêm bản, hoặc "Thêm bản tự cấp số" rồi "In nhãn sách nhập hôm nay".
+   📋 Kiểm kê: chọn/tạo đợt › đi dọc kệ quét từng cuốn (tự lưu mỗi 25 mã; bấm Lưu trước khi đóng).
+       Xem danh sách thiếu, chốt và in biên bản trên máy tính (mục Kiểm kê sách).
+   🔎 Tra cứu: quét mã sách (xem ai đang mượn, trả kèm ghi tình trạng), quét thẻ bạn đọc
+       (xem sách đang mượn, cho mượn tiếp), quét ISBN (sách đã có trong kho chưa).
+App tự cập nhật mỗi khi bạn tải index.html mới lên GitHub. Cần có mạng khi dùng (dữ liệu nằm
+trên Google Sheets).
+
+=========================================================================
+BẢN RÀ SOÁT & NÂNG CẤP (Code.gs CÓ THAY ĐỔI – cần triển khai lại)
+=========================================================================
+Cập nhật Code.gs: Apps Script › Ctrl+A xóa hết › dán Code.gs mới › Lưu ›
+  Triển khai › Quản lý triển khai › bút chì › Phiên bản: "Phiên bản mới" › Triển khai.
+  (URL giữ nguyên; trang tính NhatKy, TietDoc và cột boiThuong tự được thêm.)
+Thay index.html trên GitHub như mọi lần.
+
+Đã sửa / bổ sung:
+- Tốc độ: mỗi lần mượn/trả chỉ ghi vài ô thay vì ghi lại cả bảng (trước đây ~480.000 ô với dữ liệu
+  cỡ trường) → quét mượn/trả nhanh hơn rất nhiều. Trang công khai có bộ nhớ đệm 2 phút.
+- Nhiều máy cùng lúc: nếu cuốn sách đã được trả/mượn trên máy khác, phần mềm báo và tự tải lại
+  dữ liệu, không ghi sai.
+- Trả sách hỏng/mất: ghi số tiền bồi thường (gợi ý theo giá bìa); thống kê có tổng bồi thường.
+- Tiết đọc thư viện (menu Hồ sơ thư viện): ghi sổ tiết đọc, tiết học tại thư viện theo lớp;
+  theo dõi lớp nào chưa đủ 3 tiết đọc/học kỳ; in sổ theo dõi; tự đưa vào Đánh giá TT16.
+- Thiết lập › Bảo trì: đặt tên người dùng cho từng máy; Nhật ký thao tác (ai, máy nào, lúc nào);
+  Kiểm tra dữ liệu – tự phát hiện và sửa các chỗ lệch (sách "đang mượn" mà không có phiếu…).
+- An toàn: nhập sai mật khẩu bị làm chậm để chống dò mật khẩu; mật khẩu quản trị mới tối thiểu 6 ký tự.
+
+=========================================================================
+NHẬP TỪ GOOGLE SHEETS & DÁN DỮ LIỆU (Code.gs CÓ THAY ĐỔI)
+=========================================================================
+Mọi nút "Nhập từ Excel" (sách, bạn đọc, tài nguyên số, phiếu mượn cũ, kiểm kê) giờ cho chọn:
+  📁 File Excel/CSV  ·  🟩 Google Sheets (dán link trang tính)  ·  📋 Dán dữ liệu (bôi đen › Ctrl+C › Ctrl+V)
+Dòng tiêu đề trường/lớp ở đầu bảng được tự bỏ qua; chỉ cần có dòng tiêu đề cột như file mẫu.
+
+Cập nhật Code.gs lần này CẦN CẤP QUYỀN LẠI (vì phải đọc file Google Sheets khác):
+  1. Dán Code.gs mới › Lưu › chọn hàm "setup" › Chạy › Xem xét quyền › Cho phép.
+  2. Triển khai › Quản lý triển khai › bút chì › Phiên bản mới › Triển khai.
+File Google Sheets cần nhập chỉ cần tài khoản Google chủ hệ thống mở được (không cần chia sẻ công khai).
+
+TÀI KHOẢN NÊN DÙNG
+  - Google (chứa Google Sheets + Apps Script) và GitHub: mỗi thứ 1 tài khoản CHUNG của thư viện/trường
+    (vd tạo Gmail thuvien.thcsvinhphuoc@gmail.com), mật khẩu giao Ban Giám hiệu giữ một bản.
+    Không dùng tài khoản cá nhân: người đó chuyển trường thì mất quyền quản lý dữ liệu.
+  - Nhân viên thư viện KHÔNG cần tài khoản GitHub/Google: chỉ mở trang web/app trên điện thoại,
+    đăng nhập bằng mật khẩu quản trị; mỗi người đặt "Tên người dùng trên thiết bị" ở Thiết lập để
+    nhật ký ghi rõ ai làm gì.
+  - Muốn nhân viên xem/chỉnh trực tiếp bảng dữ liệu: chia sẻ file "Du lieu Thu vien" cho Gmail
+    của họ với quyền Người xem (khuyên dùng) – tránh sửa tay làm lệch dữ liệu.
