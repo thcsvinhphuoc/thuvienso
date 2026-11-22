@@ -219,3 +219,156 @@ TÀI KHOẢN NÊN DÙNG
     nhật ký ghi rõ ai làm gì.
   - Muốn nhân viên xem/chỉnh trực tiếp bảng dữ liệu: chia sẻ file "Du lieu Thu vien" cho Gmail
     của họ với quyền Người xem (khuyên dùng) – tránh sửa tay làm lệch dữ liệu.
+
+======================================================================
+CẬP NHẬT 22/11/2026 – PHIÊN BẢN MÁY CHỦ 7
+======================================================================
+BẮT BUỘC sau khi chép bản mới:
+ 1. Apps Script: Ctrl+A xóa hết Code.gs cũ → dán Code.gs mới → Lưu.
+ 2. Chọn hàm "setup" → Chạy → CẤP QUYỀN LẠI (bản mới cần thêm quyền
+    "kết nối dịch vụ bên ngoài" để đọc mã QR của NXB Giáo dục).
+ 3. Triển khai → Quản lý bản triển khai → ✏️ Chỉnh sửa → Phiên bản: "Phiên bản mới"
+    → Triển khai. (KHÔNG tạo bản triển khai mới, để giữ nguyên URL.)
+ 4. Tải index.html và sw.js mới lên GitHub (ghi đè). Trên điện thoại: mở app,
+    kéo xuống tải lại 1–2 lần.
+
+VÌ SAO NHẬP SÁCH MÀ GOOGLE SHEETS KHÔNG THẤY?
+ - Thanh trên cùng trang quản trị giờ hiện rõ:
+     ☁ Google Sheets (xanh)  → đang lưu lên Sheets.
+     ⚠ Dùng thử (đỏ, nhấp nháy) → dữ liệu CHỈ nằm trên máy đó, không lên Sheets.
+ - Thiết lập › "🔌 Kiểm tra kết nối": so sánh số sách/bản sách trên Sheets và
+   trên máy, báo nếu máy chủ còn chạy bản cũ.
+ - Nguyên nhân hay gặp: index.html trên GitHub là bản cũ chưa có URL; điện thoại
+   còn giữ bản cũ; hoặc chưa "Phiên bản mới" khi triển khai lại.
+ - Sách nằm ở trang tính "Sach" (đầu sách) và "BanSach" (từng cuốn), ở CUỐI bảng.
+ - Lỡ nhập ở chế độ dùng thử: Thiết lập › Tải bản sao lưu → mở trang đã kết nối
+   → Khôi phục từ bản sao lưu.
+
+TÀI KHOẢN NHÂN VIÊN (Quản trị › Tài khoản & phân quyền)
+ - Mỗi nhân viên một tên đăng nhập + mật khẩu riêng. Tài khoản "admin" (để trống
+   tên đăng nhập) vẫn dùng mật khẩu quản trị như cũ.
+ - Vai trò Nhân viên: mượn/trả, nhập sách, kiểm kê, in nhãn… nhưng KHÔNG xóa
+   sách/bạn đọc/phiếu mượn, không đổi mật khẩu quản trị, không sửa tài khoản.
+ - Nhật ký ghi tên người thao tác. Có thể khóa tài khoản khi nhân viên nghỉ.
+ - Mật khẩu được mã hóa (băm) trong Google Sheets, không ai đọc được.
+
+TÀI KHOẢN HỌC SINH (cùng trang)
+ - Chọn lớp → "Cấp mật khẩu cho HS chưa có" → "In phiếu tài khoản" (2 phiếu/hàng,
+   cắt phát cho học sinh). Học sinh đăng nhập ở trang công khai › Bạn đọc.
+
+HỌC SINH KHÔNG MANG THẺ
+ - Máy tính: Mượn – Trả › nút "👥 Theo lớp". Điện thoại: chế độ Mượn › "Không có thẻ?".
+ - Chọn lớp → bấm tên (gõ vài chữ không dấu để lọc). Chưa có trong danh sách thì
+   "Thêm" – được cấp mã tạm TAM…, đầu năm đồng bộ sẽ tự đổi sang mã HS chính thức.
+
+NHẬP KHO BẰNG MÃ QR / ISBN
+ - Sách NXB Giáo dục: chế độ Nhập kho, quét mã QR trên tem → tự điền tên sách,
+   ISBN, giá bìa (máy chủ đọc trang qrcode.nxbgd.vn). Cần kết nối Google Sheets.
+ - ISBN bắt đầu 978-604-0 tự điền NXB "Giáo dục Việt Nam".
+ - "📚 Nhập bộ SGK" (Biên mục sách hoặc điện thoại): chọn khối, bộ sách, số bản
+   → tạo cả bộ một lần. Sửa danh sách tên sách cho đúng thực tế trước khi nhập.
+
+QUÉT NHANH HƠN
+ - Camera độ phân giải cao hơn, quét liên tục theo từng khung hình.
+ - Nút 🔦 Đèn và 🔍 phóng to ngay trên khung camera (tùy điện thoại hỗ trợ;
+   iPhone thường không cho bật đèn từ trình duyệt).
+ - Nhãn mới in bằng mã Code 128 (gọn, vạch to hơn). Nhãn Code 39 cũ vẫn quét
+   được. Đổi lại ở Thiết lập › Loại mã vạch. NÊN IN THỬ 1 TRANG VÀ QUÉT THỬ trước
+   khi in hàng loạt.
+ - Thư viện quét mã được lưu lại trên máy sau lần mở đầu → iPhone mạng yếu vẫn quét.
+
+ĐỒNG BỘ DANH SÁCH HỌC SINH ĐẦU NĂM (Tài khoản bạn đọc › "🔄 Đồng bộ…")
+ - File cần cột: Mã học sinh, Họ và tên, Lớp (có thể thêm Ngày sinh, Giới tính).
+ - Tự động: cập nhật lớp mới theo mã HS; ghép học sinh cũ chưa có mã chính thức
+   theo họ tên (+ngày sinh, lớp cũ→lớp mới) và chuyển lịch sử mượn sang mã mới;
+   thêm học sinh mới; em không còn trong danh sách → "Ra trường/Chuyển đi" hoặc xóa.
+ - Xem trước toàn bộ thay đổi trước khi bấm thực hiện. Nên tải sao lưu trước.
+
+KHEN THƯỞNG & BẢNG VÀNG
+ - Trang công khai có mục "🏆 Bảng vàng": top bạn đọc tuần/tháng/năm học, lớp
+   đọc nhiều nhất (bình quân/HS), thử thách đọc, huy hiệu, trò chơi Đố vui về
+   sách và "Hôm nay đọc gì?". Tên học sinh mặc định rút gọn (Nguyễn … An).
+ - Quản trị › Khen thưởng bạn đọc: xếp hạng theo tuần/tháng/học kỳ/năm/tùy chọn,
+   theo lớp; xuất Excel; IN GIẤY KHEN (A4 ngang) cho top N; tạo thử thách đọc.
+
+NHẮC QUÁ HẠN QUA ZALO
+ - Mượn – Trả › "💬 Nhắn quá hạn (Zalo)": tạo sẵn tin nhắn cho từng lớp gửi GVCN
+   (và từng giáo viên đang mượn quá hạn). Bấm Sao chép → dán vào Zalo.
+
+DỮ LIỆU NHIỀU NĂM
+ - Thiết lập › Bảo trì › "🗄 Lưu trữ dữ liệu cũ": chuyển phiếu mượn đã trả và
+   kiểm kê đã chốt sang trang tính LuuTru_… → web nhẹ, nhanh. Web và máy chủ
+   đều CHẶN lưu trữ dữ liệu của 5 năm học gần nhất.
+ - Nhật ký thao tác: bảng chính giữ 5.000 dòng, phần cũ hơn chuyển sang trang
+   LuuTru_NhatKy (không xóa).
+
+======================================================================
+CẬP NHẬT 22/11/2026 (tối) – THỐNG KÊ THEO NĂM, HỒ SƠ 5 NĂM, LÊN LỚP
+======================================================================
+THỐNG KÊ THEO NĂM HỌC (Báo cáo thống kê)
+ - Ô "📅 Chọn năm học…" xem toàn bộ số liệu của một năm học (01/9 → 31/8).
+ - Thẻ "Thống kê theo năm học": so sánh tối thiểu 5 năm gần nhất:
+   lượt mượn, trả, bạn đọc, HS/GV, đầu sách, trả đúng hạn, sách nhập mới và
+   giá trị, thanh lý, tiết đọc, bồi thường. Các tab: theo loại sách (lượt
+   mượn / bản nhập), theo khối / giáo viên. Có biểu đồ và "Xuất Excel các năm".
+ - Nút "📦 Hồ sơ" mỗi năm: xuất 1 file Excel gồm Tổng hợp, Theo tháng, Theo lớp,
+   Theo loại sách, Sách nhập mới, Thanh lý, Tiết đọc, Kiểm kê, Chi tiết mượn trả,
+   Danh sách bạn đọc → lưu hồ sơ cuối năm / nộp báo cáo.
+ - Mỗi phiếu mượn mới ghi lại LỚP LÚC MƯỢN, nên sau khi lên lớp số liệu năm cũ
+   vẫn đúng lớp cũ. Phiếu cũ được tự ghi lớp ngay trước khi lên lớp / đồng bộ.
+
+LƯU HỒ SƠ TỐI THIỂU 5 NĂM
+ - Không ai lưu trữ/dọn được dữ liệu của 5 năm học gần nhất (máy chủ kiểm tra).
+ - Dữ liệu cũ hơn khi lưu trữ chỉ chuyển sang trang LuuTru_… trong cùng file
+   Google Sheets, không bị xóa.
+ - Lên lớp: khuyên KHÔNG xóa học sinh ra trường (chuyển thành "Ra trường") để hồ
+   sơ giữ đủ tên người mượn.
+
+LÊN LỚP ĐẦU NĂM (Tài khoản bạn đọc › "⬆ Lên lớp")
+ - Bảng từng lớp → lớp mới (gợi ý số khối + 1, sửa được để tách/gộp lớp).
+ - Khối cuối cấp (mặc định 9) → "Ra trường". Ô nhập mã học sinh lưu ban.
+ - Tự ghi nhớ năm học đã lên lớp và cảnh báo nếu bấm lên lớp lần 2.
+ - Chỉ tài khoản quản trị được lên lớp.
+
+LÊN LỚP ĐẦU NĂM THEO DANH SÁCH MỚI (cách chính – cập nhật 22/11/2026)
+ Tài khoản bạn đọc › "⬆ Lên lớp đầu năm (theo danh sách mới)":
+ 1. (Tùy chọn) "Tải file mẫu" – xuất danh sách học sinh hiện tại theo đúng cột.
+ 2. Chuẩn bị file năm học mới: Mã học sinh, Họ và tên, Lớp (lớp MỚI),
+    Ngày sinh, Giới tính. Cả trường một file hoặc từng khối đều được.
+ 3. "Chọn file danh sách" (Excel / link Google Sheets / dán) → xem trước:
+    - em lên lớp / đổi lớp, sửa thông tin (tên, ngày sinh…) theo mã học sinh;
+    - em cũ đang dùng mã khác (mã thẻ cũ, mã tạm TAM…) → ghép sang mã chính thức,
+      lịch sử mượn chuyển theo;
+    - học sinh mới (lớp 6, chuyển đến) → thêm vào;
+    - em không còn trong danh sách → "Ra trường/Chuyển đi" (khuyên chọn) hoặc xóa.
+ 4. Bấm "Thực hiện lên lớp".
+ - Cảnh báo nếu file làm học sinh tụt khối (nhầm file năm cũ) hoặc phần lớn vẫn
+   ở lớp cũ (file chưa cập nhật). Cảnh báo nếu năm học này đã lên lớp.
+ - Nút "Lên lớp theo quy tắc" (khối + 1) chỉ dùng khi không có file.
+
+======================================================================
+MƯỢN – TRẢ THEO BỘ SÁCH (máy chủ phiên bản 8 – cập nhật 22/11/2026)
+======================================================================
+BẮT BUỘC: dán Code.gs mới → chạy setup → Triển khai › Phiên bản mới
+(bảng MuonTra có thêm cột "bo" để biết cuốn nào thuộc bộ nào).
+
+1. TẠO BỘ SÁCH
+ - "📚 Nhập bộ SGK" tự lưu luôn thành bộ, vd "Bộ SGK lớp 9 – Kết nối tri thức…".
+ - Hoặc "⚙ Bộ sách" (Biên mục sách / Mượn – Trả) → "＋ Tạo bộ mới": đặt tên,
+   hạn trả mặc định (vd 31/05 cho SGK), lọc theo tên/nhãn → chọn các đầu sách.
+
+2. CHO MỘT HỌC SINH MƯỢN CẢ BỘ
+ Máy tính: chọn bạn đọc → "📚 Mượn theo bộ". Điện thoại: quét thẻ → "📚 Mượn cả bộ sách".
+ Chọn bộ → xem cuốn nào còn sẵn / đã mượn / hết, rồi:
+   • "📷 Quét từng cuốn": quét lần lượt sách đưa cho học sinh; danh sách đánh dấu
+     ✅ cuốn đã quét, ⬜ cuốn còn thiếu, ❌ cuốn hết bản. (Chính xác nhất.)
+   • "⚡ Tự chọn bản còn sẵn": máy tự lấy số ĐKCB còn sẵn cho cả bộ.
+ Hạn trả tự lấy theo bộ. Sách trong bộ không tính vào giới hạn số cuốn được mượn.
+
+3. TRẢ CẢ BỘ
+ - Máy tính: chọn bạn đọc → nút "↩ Trả cả bộ … (n cuốn)". Cuốn hỏng/mất trả riêng trước.
+ - Điện thoại (chế độ Trả): quét từng cuốn, máy báo "bộ còn n cuốn chưa trả".
+
+4. CẢ LỚP MƯỢN THEO BỘ
+ - "📚 Cho mượn theo lớp" → "Chọn nhanh theo bộ sách" → mỗi học sinh một bộ, có
+   in danh sách ký nhận. "📥 Thu hồi theo lớp" có thêm lọc "theo bộ sách".
