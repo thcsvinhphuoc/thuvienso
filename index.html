@@ -326,6 +326,16 @@ table.t td.r,table.t th.r{text-align:right}
 .bock{border:1.5px dashed var(--or);border-radius:10px;padding:8px 10px;margin:8px 0;background:#fffbf5}.boi{font-size:13px;padding:2px 0}.boi small{color:var(--mu)}.boi.ok{color:#166534}.boi.het{color:var(--rd)}
 .qpg{display:grid;grid-template-columns:1fr 1fr;gap:5px;max-height:46vh;overflow:auto;padding:2px}.qpg button{display:flex;align-items:center;gap:6px;text-align:left;border:1px solid var(--bd);background:#fff;border-radius:8px;padding:9px 8px;font:inherit;font-size:13.5px;cursor:pointer;min-height:42px}.qpg button:active{background:#dcfce7}.qpg .n{color:var(--mu);font-size:11px;min-width:16px}.qpg b{flex:1;font-weight:600;line-height:1.25}.qpg em{font-style:normal;font-size:11px;color:var(--bl)}.qpg i{font-style:normal;font-size:10.5px;color:#15803d}.qpg button.hn{background:#f0fdf4;border-color:#86efac}
 .qca{margin-top:10px;padding:8px 10px;border:1px dashed var(--bd);border-radius:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.rb{background:#fff;border-bottom:1px solid var(--bd);position:sticky;top:50px;z-index:35;box-shadow:0 2px 6px #0000000d}
+.rbt{display:flex;gap:2px;padding:4px 10px 0;background:#f1f5f9;border-bottom:1px solid var(--bd);overflow-x:auto;scrollbar-width:none}.rbt::-webkit-scrollbar{display:none}
+.rbt button{border:0;background:transparent;padding:7px 14px;font:inherit;font-size:13px;color:#334155;border-radius:8px 8px 0 0;cursor:pointer;white-space:nowrap;border:1px solid transparent;border-bottom:0;margin-bottom:-1px}
+.rbt button:hover{background:#e2e8f0}.rbt button.on{background:#fff;border-color:var(--bd);color:var(--ag);font-weight:700}
+.rbp{display:flex;align-items:stretch;gap:10px;padding:6px 10px;overflow-x:auto;scrollbar-width:thin}.rbi-w{display:flex;gap:4px;flex:1}
+.rbi{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:84px;max-width:110px;padding:6px 6px;border-radius:8px;color:#1e293b;text-decoration:none;text-align:center;border:1px solid transparent}
+.rbi span{font-size:22px;line-height:1}.rbi small{font-size:11.5px;line-height:1.2}.rbi:hover{background:#f0fdf4;border-color:#bbf7d0}.rbi.on{background:#dcfce7;border-color:var(--ag);color:#14532d;font-weight:600}
+.rbq{display:flex;gap:4px;align-items:center;border-left:1px solid var(--bd);padding-left:10px}.rbi.q span{font-size:20px}.rbinfo{font-size:11px;color:var(--mu);line-height:1.5;padding:0 6px;white-space:nowrap}
+.ad.rib .ct{max-width:1500px;margin:0 auto;width:100%}
+@media (max-width:640px){.rb{top:auto;position:relative}.rbi{min-width:68px}.rbi small{font-size:10.5px}.rbinfo{display:none}}
 @media (max-width:1000px){
   .g32{grid-template-columns:1fr}
   .hgrid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(3,1fr)}
@@ -555,13 +565,7 @@ async function routeAdmin(path){const sub=path.replace(/^\/admin\/?/,'');ensureA
   if(!PASS)return renderLogin();
   if(!S){try{await loadAdmin()}catch(e){if(e.auth){PASS='';SS.del('tv_pass');LS.del('tv_pass');clearWho();return renderLogin('Sai tên đăng nhập hoặc mật khẩu')}throw e}}
   setTimeout(autoPing,800);
-  const c=getCfg();
-  $('#app').innerHTML=`${demoBar()}<div class="ad"><aside class="sb" id="sb"><div class="brand">${c.logoUrl?`<img src="${esc(c.logoUrl)}" style="width:34px;height:34px;border-radius:50%">`:'<span class="lg" style="width:34px;height:34px;font-size:17px;border-radius:50%">📚</span>'}<div><b>Thư viện số</b><span>Quản trị</span></div></div>
-  <nav>${MENU.filter(m=>isAdmin()||m[0]!=='tai-khoan').map(m=>m[0]==='g'?`<div class="grp">${m[2]}</div>`:`<a href="#/admin${m[0]?'/'+m[0]:''}" class="${sub===m[0]?'on':''}"><span>${m[1]}</span>${m[2]}</a>`).join('')}</nav>
-  <div class="ft">📅 Năm học ${nhTen(namHocNay())}<br>${DEMO()?'⚠ Chế độ dùng thử':'☁ Đã kết nối Google Sheets'}<br>👤 ${esc(USER?HOTEN||USER:'admin')} · ${esc(VAITRO[ROLE]||'')}</div></aside>
-  <div class="main"><div class="tb"><button class="btn menu" onclick="$('#sb').classList.toggle('open')">☰</button><span class="tbn">🏫 ${esc(c.tenTruong)}</span>${connBadge()}<span class="sp"></span><button class="btn" onclick="A.toiDoiMK()" title="Tài khoản của tôi">👤<span class="cl"> ${esc(USER?HOTEN||USER:'admin')}</span></button>
-  <button class="btn" onclick="reloadAdmin()" title="Tải lại dữ liệu mới nhất">⟳<span class="cl"> Tải lại</span></button><a class="btn" href="#/" title="Trang công khai">🌐<span class="cl"> Trang công khai</span></a><button class="btn" onclick="logout()">Đăng xuất</button></div>
-  <div class="ct" id="ct"></div></div></div>`;
+  adShell(sub);
   ({'':pgTongQuan,'sach':pgSach,'dkcb':pgDkcb,'muon-tra':pgMuonTra,'ban-doc':pgBanDoc,'danh-muc':pgDanhMuc,'thong-ke':pgThongKe,'thiet-lap':pgThietLap,'tai-nguyen':pgTaiNguyen,'bai-viet':pgBaiViet,'hoi-dap':pgHoiDapAd,'lien-ket':pgLienKet,'danh-gia':pgDanhGia,'mau-in':pgMauIn,'minh-chung':pgMinhChung,'kiem-ke':pgKiemKe,'thanh-ly':pgThanhLy,'so-tay':pgSoTay,'quet':pgQuet,'tiet-doc':pgTietDoc,'tai-khoan':pgTaiKhoan,'khen-thuong':pgKhenThuong}[sub]||pgTongQuan)();
   window.scrollTo(0,0)}
 function renderLogin(err){$('#app').innerHTML=`${demoBar()}<div class="login"><form class="card" onsubmit="event.preventDefault();doLogin(this.p.value,this.nho.checked)">
@@ -2785,6 +2789,35 @@ A.napSoSGK=async function(aoaIn){if(!isAdmin())return toast('Cần tài khoản 
       for(const b of x.batch){if(daNap.has(s.id+'|'+b.y)){skip++;continue}for(let i=0;i<b.n;i++)ban.push({dkcb:pool[pi++],sachId:s.id,tinhTrang:i<b.mat?'Mất':'Sẵn sàng',ngayNhap:nhBatDau(b.y),nguon:'Sổ ĐK SGK cũ',ghiChu:i<b.mat?'Mất (theo sổ cũ)':'',chungTu:b.ct,donGia:b.gia,namXB:b.nx})}}
     S.Sach=S.Sach.filter(s=>!sach.includes(s));if(!ban.length)throw new Error('Các lần nhập trong sổ đã được nạp trước đó');const ops=[];if(sach.length)ops.push({t:'upsert',table:'Sach',rows:sach});ops.push({t:'upsert',table:'BanSach',rows:ban});
     if(!await commit(ops,`Đã nạp ${sach.length} đầu sách mới, ${ban.length} bản${skip?`, bỏ qua ${skip} lần nhập đã có`:''}`))return false;rerender()}})};
+
+/* ================== PHẦN 16: giao diện Ribbon (thanh công cụ ngang) + giữ khung trang, không vẽ lại menu ================== */
+const RB={mode:LS.get('tv_layout')||'ribbon',grp:''};
+function menuGroups(){const G=[];let cur={ten:'Trang chính',icon:'🏠',items:[]};G.push(cur);const ic={'Sách thư viện':'📚','Bạn đọc':'👥','Hồ sơ thư viện':'🗂️','Quản lý site':'🌐','Hệ thống':'⚙️'};
+  MENU.filter(m=>isAdmin()||m[0]!=='tai-khoan').forEach(m=>{if(m[0]==='g'){cur={ten:m[2],icon:ic[m[2]]||'📁',items:[]};G.push(cur)}else cur.items.push(m)});return G.filter(g=>g.items.length)}
+function grpOf(sub){const G=menuGroups();return(G.find(g=>g.items.some(m=>m[0]===sub))||G[0]).ten}
+function ribbonHTML(sub){const G=menuGroups();const g=G.find(x=>x.ten===RB.grp)||G[0];
+  return`<div class="rbt">${G.map(x=>`<button class="${x.ten===g.ten?'on':''}" data-g="${esc(x.ten)}">${x.icon} ${esc(x.ten)}</button>`).join('')}</div>
+   <div class="rbp"><div class="rbi-w">${g.items.map(m=>`<a href="#/admin${m[0]?'/'+m[0]:''}" class="rbi ${sub===m[0]?'on':''}" data-sub="${m[0]}"><span>${m[1]}</span><small>${esc(m[2])}</small></a>`).join('')}</div>
+   <div class="rbq"><a href="#/admin/muon-tra" class="rbi q ${sub==='muon-tra'?'on':''}" data-sub="muon-tra"><span>🔄</span><small>Mượn – Trả</small></a><a href="#/admin/quet" class="rbi q ${sub==='quet'?'on':''}" data-sub="quet"><span>📱</span><small>Quét điện thoại</small></a>
+    <div class="rbinfo">📅 ${nhTen(namHocNay())}<br>${DEMO()?'⚠ Dùng thử':'☁ Google Sheets'}</div></div></div>`}
+function shellKey(){const c=getCfg();return[RB.mode,USER,ROLE,DEMO()?1:0,c.tenTruong,c.logoUrl].join('|')}
+function shellHTML(sub){const c=getCfg();const rib=RB.mode==='ribbon';
+  const top=`<div class="tb">${rib?`<span class="lg" style="width:30px;height:30px;font-size:15px;border-radius:50%">📚</span><b class="tbn" style="font-size:15px">Thư viện số</b>`:`<button class="btn menu" onclick="$('#sb').classList.toggle('open')">☰</button>`}<span class="tbn">🏫 ${esc(c.tenTruong)}</span>${connBadge()}<span class="sp"></span>
+   <button class="btn" onclick="A.doiGiaoDien()" title="${rib?'Chuyển sang menu dọc bên trái':'Chuyển sang thanh công cụ ngang (ribbon)'}">${rib?'☰':'▤'}<span class="cl"> ${rib?'Menu dọc':'Ribbon'}</span></button>
+   <button class="btn" onclick="A.toiDoiMK()" title="Tài khoản của tôi">👤<span class="cl"> ${esc(USER?HOTEN||USER:'admin')}</span></button>
+   <button class="btn" onclick="reloadAdmin()" title="Tải lại dữ liệu mới nhất">⟳<span class="cl"> Tải lại</span></button><a class="btn" href="#/" title="Trang công khai">🌐<span class="cl"> Trang công khai</span></a><button class="btn" onclick="logout()">Đăng xuất</button></div>`;
+  if(rib)return`${demoBar()}<div class="ad rib" id="adShell" data-k="${esc(shellKey())}"><div class="main">${top}<div class="rb" id="rb">${ribbonHTML(sub)}</div><div class="ct" id="ct"></div></div></div>`;
+  return`${demoBar()}<div class="ad" id="adShell" data-k="${esc(shellKey())}"><aside class="sb" id="sb"><div class="brand">${c.logoUrl?`<img src="${esc(c.logoUrl)}" style="width:34px;height:34px;border-radius:50%">`:'<span class="lg" style="width:34px;height:34px;font-size:17px;border-radius:50%">📚</span>'}<div><b>Thư viện số</b><span>Quản trị</span></div></div>
+   <nav>${MENU.filter(m=>isAdmin()||m[0]!=='tai-khoan').map(m=>m[0]==='g'?`<div class="grp">${m[2]}</div>`:`<a href="#/admin${m[0]?'/'+m[0]:''}" data-sub="${m[0]}" class="${sub===m[0]?'on':''}"><span>${m[1]}</span>${m[2]}</a>`).join('')}</nav>
+   <div class="ft">📅 Năm học ${nhTen(namHocNay())}<br>${DEMO()?'⚠ Chế độ dùng thử':'☁ Đã kết nối Google Sheets'}<br>👤 ${esc(USER?HOTEN||USER:'admin')} · ${esc(VAITRO[ROLE]||'')}</div></aside>
+   <div class="main">${top}<div class="ct" id="ct"></div></div></div>`}
+/* Vẽ khung (một lần) hoặc chỉ đánh dấu mục đang chọn */
+function adShell(sub){const sh=$('#adShell');
+  if(!sh||sh.dataset.k!==shellKey()||!$('#ct')){RB.grp=grpOf(sub);$('#app').innerHTML=shellHTML(sub);bindShell();return}
+  if(RB.mode==='ribbon'){if(RB.grp!==grpOf(sub)&&!$('#rb .rbi[data-sub="'+sub+'"]')){RB.grp=grpOf(sub);$('#rb').innerHTML=ribbonHTML(sub)}}
+  $$('#adShell [data-sub]').forEach(a=>a.classList.toggle('on',a.dataset.sub===sub));const sb=$('#sb');if(sb)sb.classList.remove('open')}
+function bindShell(){const rb=$('#rb');if(rb)rb.addEventListener('click',e=>{const t=e.target.closest('[data-g]');if(!t)return;RB.grp=t.dataset.g;const sub=location.hash.replace(/^#\/admin\/?/,'').split('?')[0];rb.innerHTML=ribbonHTML(sub)})}
+A.doiGiaoDien=()=>{RB.mode=RB.mode==='ribbon'?'sidebar':'ribbon';LS.set('tv_layout',RB.mode);route()};
 
 /* ---------- Excel ---------- */
 let XP=null;
