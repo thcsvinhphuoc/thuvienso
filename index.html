@@ -324,6 +324,8 @@ table.t td.r,table.t th.r{text-align:right}
 @media (max-width:640px){.tbn,.conn .cl,.tb .cl{display:none}.tb{gap:6px;flex-wrap:wrap}.tb .btn{padding:6px 9px}.dvo{grid-template-columns:1fr}}
 .bol{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}.bol button{text-align:left;border:1.5px solid var(--bd);background:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit}.bol button:hover,.bol button.on{border-color:var(--or);background:#fff7ed}.bol small{display:block;color:var(--mu);margin-top:2px}
 .bock{border:1.5px dashed var(--or);border-radius:10px;padding:8px 10px;margin:8px 0;background:#fffbf5}.boi{font-size:13px;padding:2px 0}.boi small{color:var(--mu)}.boi.ok{color:#166534}.boi.het{color:var(--rd)}
+.qpg{display:grid;grid-template-columns:1fr 1fr;gap:5px;max-height:46vh;overflow:auto;padding:2px}.qpg button{display:flex;align-items:center;gap:6px;text-align:left;border:1px solid var(--bd);background:#fff;border-radius:8px;padding:9px 8px;font:inherit;font-size:13.5px;cursor:pointer;min-height:42px}.qpg button:active{background:#dcfce7}.qpg .n{color:var(--mu);font-size:11px;min-width:16px}.qpg b{flex:1;font-weight:600;line-height:1.25}.qpg em{font-style:normal;font-size:11px;color:var(--bl)}.qpg i{font-style:normal;font-size:10.5px;color:#15803d}.qpg button.hn{background:#f0fdf4;border-color:#86efac}
+.qca{margin-top:10px;padding:8px 10px;border:1px dashed var(--bd);border-radius:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 @media (max-width:1000px){
   .g32{grid-template-columns:1fr}
   .hgrid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(3,1fr)}
@@ -1728,7 +1730,7 @@ async function qcCode(code){code=String(code||'').trim();if(!code||QC.busy)retur
   QC.cart.push(b.dkcb);qcMsg('✔ '+((sm[b.sachId]||{}).nhanDe||b.dkcb),true);fillQC()}
 function fillQC(){const B=$('#qcB');if(!B)return;const sm=mapBy(S.Sach,'id'),c=getCfg(),t=today();
   if(QC.mode==='tra'){B.innerHTML=`<h3 style="margin:12px 0 6px">Đã quét (${QC.log.length})</h3>${QC.log.slice(0,30).map(x=>`<div class="kkl ${x.ok?'ok':'err'}">${x.ok?'✔':'✖'} ${esc(x.t)}</div>`).join('')||'<div class="muted small">Chưa có</div>'}`;return}
-  const r=QC.reader;if(!r){B.innerHTML=`<div class="qcst">① Quét <b>thẻ bạn đọc</b> (hoặc gõ mã bạn đọc)</div><button class="btn" style="width:100%;justify-content:center;padding:11px" onclick="A.chonBD(b=>{QC.reader=b;QC.cart=[];QC.han='';qcMsg('✔ '+b.hoTen+' – giờ quét sách',true);fillQC()})">👥 Không có thẻ? Chọn lớp → chọn tên</button>`;return}
+  const r=QC.reader;if(!r){B.innerHTML=qcPickHTML();qpFill();return}
   const ln=loansOf(r.ma);const max=+(r.loai==='GV'?c.toiDaGV:c.toiDaHS);const han=addDays(t,r.loai==='GV'?c.ngayMuonGV:c.ngayMuonHS);
   B.innerHTML=`<div class="rinfo"><div style="display:flex;justify-content:space-between;gap:8px"><div><b style="font-size:16px">${esc(r.hoTen)}</b><div class="small muted">${esc(r.ma)} · ${r.loai==='GV'?'Tổ':'Lớp'} ${esc(r.lop)}</div></div><button class="btn sm" onclick="QC.reader=null;QC.cart=[];fillQC()">✕ Đổi</button></div>
    <div class="small" style="margin-top:6px">Đang mượn ${ln.length}/${max}${ln.some(m=>m.hanTra<t)?' · <span class="tag t-er">có sách quá hạn</span>':''}</div></div>
@@ -1869,7 +1871,7 @@ async function qcMuon(){const r=QC.reader,c=getCfg(),t=today();if(!r||!QC.cart.l
   if(datN.length)ops.push({t:'upsert',table:'DatMuon',rows:datN.map(d=>({id:d.id,trangThai:'Đã nhận'}))});
   ops.push({t:'upsert',table:'MuonTra',rows:cart.map(dk=>({id:uid('M'),dkcb:dk,sachId:findBan(dk).sachId,maBanDoc:r.ma,ngayMuon:t,hanTra:han,ngayTra:'',trangThai:'Đang mượn',ghiChu:boNote('QC',dk),bo:boOf('QC',dk)}))});
   QC.busy=true;const ok=await commit(ops,`Đã cho ${r.hoTen} mượn ${cart.length} cuốn`);QC.busy=false;
-  if(ok){QC.reader=null;QC.cart=[];QC.han='';qcMsg('✔ Xong! Quét thẻ bạn đọc tiếp theo',true);fillQC()}}
+  if(ok){const giu=QC.auto&&QC.reader;QC.cart=[];if(!giu){QC.reader=null;QC.han=''}qcMsg(giu?'✔ Đã cho '+QC.reader.hoTen+' mượn – quét tiếp sách, hoặc bấm ✕ Đổi để chọn em khác':'✔ Xong! Chọn / quét bạn đọc tiếp theo',true);fillQC()}}
 
 /* --- Nhập kho --- */
 async function qcNhap(code){const sm=mapBy(S.Sach,'id');
@@ -1945,13 +1947,13 @@ function fillQC(){const B=$('#qcB');if(!B)return;const sm=mapBy(S.Sach,'id'),c=g
      <div class="kkbar" style="margin:8px 0"><div style="width:${pct}%"></div></div><div class="kkst"><div><b style="color:var(--ag)">${R.thay.length}</b><span>Đã thấy</span></div><div><b style="color:var(--bl)">${R.dang.length}</b><span>Đang mượn</span></div><div><b style="color:var(--rd)">${R.thieu.length}</b><span>Chưa thấy</span></div><div><b style="color:#a16207">${R.la.length}</b><span>Mã lạ</span></div><div><b>${pct}%</b><span>Tiến độ</span></div></div>
      <button class="btn ${KK.buf.length?'pri':''}" style="width:100%;justify-content:center;margin-top:10px" ${KK.buf.length?'':'disabled'} onclick="qcLuuKK()">💾 Lưu ${KK.buf.length?KK.buf.length+' mã chưa lưu':'(đã lưu hết)'}</button>
      <div class="small muted" style="margin-top:6px">Xem danh sách thiếu, chốt và in biên bản ở mục Kiểm kê sách trên máy tính.</div></div>${KK.log.slice(-10).reverse().map(x=>`<div class="kkl ${x[1]}"><b>${esc(x[0])}</b> ${esc(x[2])}</div>`).join('')}`;return}
-  const r=QC.reader;if(!r){B.innerHTML=`<div class="qcst">① Quét <b>thẻ bạn đọc</b> (hoặc gõ mã bạn đọc)</div><button class="btn" style="width:100%;justify-content:center;padding:11px" onclick="A.chonBD(b=>{QC.reader=b;QC.cart=[];QC.han='';qcMsg('✔ '+b.hoTen+' – giờ quét sách',true);fillQC()})">👥 Không có thẻ? Chọn lớp → chọn tên</button>`;return}
+  const r=QC.reader;if(!r){B.innerHTML=qcPickHTML();qpFill();return}
   const ln=loansOf(r.ma);const max=+(r.loai==='GV'?c.toiDaGV:c.toiDaHS);
   B.innerHTML=`<div class="rinfo"><div style="display:flex;justify-content:space-between;gap:8px"><div><b style="font-size:16px">${esc(r.hoTen)}</b><div class="small muted">${esc(r.ma)} · ${r.loai==='GV'?'Tổ':'Lớp'} ${esc(r.lop)}</div></div><button class="btn sm" onclick="QC.reader=null;QC.cart=[];QC.han='';fillQC()">✕ Đổi</button></div>
    <div class="small" style="margin-top:6px">Đang mượn ${ln.length}/${max}${ln.some(m=>m.hanTra<t)?' · <span class="tag t-er">có sách quá hạn</span>':''}</div></div>
    <div class="qcst">② Quét sách (${QC.cart.length})</div>${boCur('QC')?'':`<button class="btn or" style="width:100%;justify-content:center;margin-bottom:6px" onclick="A.chonBo('QC')">📚 Mượn cả bộ sách</button>`}${QC.cart.map((dk,i)=>{const b=findBan(dk);return`<div class="it"><span>📘 <b>${esc(dk)}</b> ${esc((sm[b.sachId]||{}).nhanDe)}</span><button class="btn sm dan" onclick="QC.cart.splice(${i},1);fillQC()">✕</button></div>`}).join('')}${boChecklist('QC')}
    <div class="fr" style="margin-top:6px"><div class="fl" style="flex:1"><label>Hạn trả</label><input type="date" class="inp" value="${qcHan()}" onchange="QC.han=this.value;fillQC()"></div></div>
-   <button class="btn pri" style="width:100%;justify-content:center;padding:13px;font-size:16px;margin-top:8px" ${QC.cart.length?'':'disabled'} onclick="qcMuon()">✔ Xác nhận cho mượn${QC.cart.length?` ${QC.cart.length} cuốn`:''}</button>`}
+   <button class="btn pri" style="width:100%;justify-content:center;padding:13px;font-size:16px;margin-top:8px" ${QC.cart.length?'':'disabled'} onclick="qcMuon()">✔ Xác nhận cho mượn${QC.cart.length?` ${QC.cart.length} cuốn`:''}</button>${qcAutoHTML()}`;qcAutoGo()}
 window.addEventListener('hashchange',()=>{if(!location.hash.startsWith('#/admin/quet')&&QC.mode==='kk'&&KK.buf.length&&S)qcLuuKK()});
 
 
@@ -2636,6 +2638,24 @@ A.editNH=function(y){const k=nhKB(y)||{y,batDau:y+'-09-01',hk2:(y+1)+'-01-18',ke
     const L=dsNHKB().filter(x=>+x.y!==y);L.push({y,batDau:v.batDau,hk2:v.hk2||'',ketThuc:v.ketThuc||''});
     if(!await commit([{t:'upsert',table:'CaiDat',rows:[{key:'namHoc',value:JSON.stringify(L)}]}],'Đã lưu năm học '+nhTen(y)))return false;rerender()}})};
 A.xoaNH=async y=>{if(!await ask(`Xóa khai báo năm học ${nhTen(y)}? (Sẽ dùng mốc mặc định 01/9.)`,'Xóa'))return;if(await commit([{t:'upsert',table:'CaiDat',rows:[{key:'namHoc',value:JSON.stringify(dsNHKB().filter(x=>+x.y!==y))}]}],'Đã xóa'))rerender()};
+
+/* ================== PHẦN 14: điện thoại – chọn lớp → chọn tên ngay trên màn hình, quét là cho mượn ================== */
+const QP={lop:LS.get('tv_qclop')||'',q:''};
+QC.auto=LS.get('tv_qcauto')==='1';
+function qcPickHTML(){const lops=lopList();if(!lops.includes(QP.lop))QP.lop=lops[0]||'';
+  return`<div class="qcst">① Quét <b>thẻ bạn đọc</b> – hoặc chọn lớp → bấm tên</div>
+   <div class="fr" style="gap:6px;margin-bottom:6px"><select class="inp" id="qpL" style="flex:0 0 auto;width:auto;min-width:96px" onchange="QP.lop=this.value;LS.set('tv_qclop',this.value);qpFill()">${lops.map(l=>`<option ${l===QP.lop?'selected':''}>${esc(l)}</option>`).join('')}<option value="__gv" ${QP.lop==='__gv'?'selected':''}>Giáo viên</option></select>
+    <input class="inp" id="qpQ" style="flex:1;min-width:0" placeholder="Lọc tên (không cần dấu)…" value="${esc(QP.q)}" oninput="QP.q=this.value;qpFill()" autocomplete="off"></div>
+   <div id="qpG" class="qpg"></div>
+   <button class="btn sm" style="margin-top:6px" onclick="A.chonBD(b=>{QC.reader=b;QC.cart=[];QC.han='';fillQC()})">＋ Học sinh chưa có trong danh sách</button>`}
+function qpFill(){const el=$('#qpG');if(!el)return;const t=today();const dang={},homNay=new Set();S.MuonTra.forEach(m=>{if(m.trangThai==='Đang mượn')dang[m.maBanDoc]=(dang[m.maBanDoc]||0)+1;if(m.ngayMuon===t)homNay.add(m.maBanDoc)});
+  let L=S.BanDoc.filter(b=>QP.lop==='__gv'?b.loai==='GV':b.loai!=='GV'&&b.lop===QP.lop);if(QP.q.trim())L=L.filter(b=>matchQ(b.hoTen+' '+b.ma,QP.q));
+  L=L.sort((a,b)=>tenSort(a.hoTen,b.hoTen));
+  el.innerHTML=L.map((b,i)=>`<button type="button" data-ma="${esc(b.ma)}" class="${homNay.has(b.ma)?'hn':''}"><span class="n">${i+1}</span><b>${esc(b.hoTen)}</b>${dang[b.ma]?`<em>${dang[b.ma]}📘</em>`:''}${homNay.has(b.ma)?'<i>✓ hôm nay</i>':''}</button>`).join('')||'<div class="muted small" style="padding:8px">Không có ai</div>';
+  el.onclick=e=>{const d=e.target.closest('[data-ma]');if(!d)return;const r=S.BanDoc.find(x=>x.ma===d.dataset.ma);QC.reader=r;QC.cart=[];QC.han='';QP.q='';qcMsg('✔ '+r.hoTen+' – giờ quét sách',true);fillQC()}}
+function qcAutoHTML(){return`<label class="chk qca"><input type="checkbox" ${QC.auto?'checked':''} onchange="QC.auto=this.checked;LS.set('tv_qcauto',this.checked?'1':'');fillQC()"> ⚡ <b>Quét là cho mượn ngay</b> <span class="small muted">(không cần bấm Xác nhận)</span></label>`}
+/* Tự xác nhận khi bật "quét là cho mượn ngay" */
+let qcAutoT=0;function qcAutoGo(){if(!QC.auto||QC.mode!=='muon'||!QC.reader||!QC.cart.length||QC.autoBusy)return;clearTimeout(qcAutoT);qcAutoT=setTimeout(async()=>{if(!QC.reader||!QC.cart.length)return;QC.autoBusy=true;try{await qcMuon()}finally{QC.autoBusy=false}},350)}
 
 /* ---------- Excel ---------- */
 let XP=null;
