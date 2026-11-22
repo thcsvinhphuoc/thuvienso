@@ -2166,14 +2166,20 @@ A.chonBD=function(cb){const lops=lopList();let lop=LS.get('tv_lastlop')||'';if(!
 /* ---------- Mục 2: nhập kho bằng mã QR NXB Giáo dục / ISBN ---------- */
 const isNXBGD=isbn=>/^9786040/.test(String(isbn||'').replace(/[^0-9]/g,''));
 async function nxbgdInfo(url){busy(true);try{const j=await BE().post({action:'nxbgd',pass:PASS,url});if(!j.sach)throw new Error(j.error||'Không đọc được thông tin sách');return j.sach}finally{busy(false)}}
+/* Dự phòng khi máy chủ không đọc được trang NXB: mở trang để xem, nhập tay (đã điền sẵn NXB) */
+function qrDuPhong(url,err){const quyen=/cấp quyền|capQuyenDocQR/.test(err||'');
+  const m=modal('📱 Chưa đọc tự động được mã QR',`<p style="margin-top:0">${quyen?`Máy chủ chưa được cấp quyền đọc trang thông tin sách. <b>Quản trị viên</b> làm 1 lần trên máy tính: mở <b>Apps Script</b> → ô chọn hàm chọn <b>capQuyenDocQR</b> → bấm <b>▷ Chạy</b> → <b>Cho phép</b>. Sau đó quét lại là được (không cần triển khai lại).`:esc(err||'')}</p>
+   <p>Trong lúc chờ, bạn có thể:</p><div class="acts"><a class="btn" href="${esc(url)}" target="_blank" rel="noopener">🔗 Mở trang thông tin sách</a><button type="button" class="btn or" id="qdTay">✍ Nhập sách (đã điền NXB Giáo dục)</button></div>
+   <p class="small muted" style="margin-bottom:0">Hoặc quét <b>mã vạch ISBN</b> (978…) ở bìa sau – cũng tự điền được thông tin.</p>`,{noOk:true,cancel:'Đóng'});
+  $('#qdTay',m.root).onclick=()=>{m.close();qcSachMoi('',{nhanDe:'',tacGia:'',nxb:'Giáo dục Việt Nam',namXB:'',gia:'',moTa:''})}}
 function qrToSach(q){return{nhanDe:q.nhanDe||'',tacGia:'',nxb:'Giáo dục Việt Nam',namXB:'',gia:q.gia||'',moTa:q.maSach?'Mã số sách: '+q.maSach+(q.soDKXB?' · Số ĐKXB: '+q.soDKXB:''):''}}
 async function qcQR(url){if(!/^https?:\/\//i.test(url))return false;
-  qcMsg('Đang đọc thông tin từ mã QR…',true);let q;try{q=await nxbgdInfo(url)}catch(e){qcMsg(e.message,false);toast(e.message,'err');return true}
+  qcMsg('Đang đọc thông tin từ mã QR…',true);let q;try{q=await nxbgdInfo(url)}catch(e){qcMsg('Chưa đọc tự động được thông tin từ mã QR',false);qrDuPhong(url,e.message);return true}
   const isbn=String(q.isbn||'').replace(/[^0-9Xx]/g,'');const s=isbn?S.Sach.find(x=>isbnEq(x.isbn,isbn)):S.Sach.find(x=>norm(x.nhanDe)===norm(q.nhanDe));
   if(s){QC.nhapS=s.id;qcMsg('✔ Sách đã có: '+s.nhanDe,true);fillQC();return true}
   qcSachMoi(isbn||'(không có)',qrToSach(q));return true}
 A.camISBN=btn=>{const f=btn.closest('.mb');A.cam({title:'📷 Quét mã ISBN hoặc mã QR sau bìa sách',hint:'Quét mã vạch ISBN (978…) hoặc mã QR trên tem NXB Giáo dục để tự điền thông tin.',onCode:async c=>{
-  if(/^https?:\/\//i.test(c)){try{const q=await nxbgdInfo(c);const d={...qrToSach(q),isbn:q.isbn};let n=0;for(const k in d){const el=$(`[name=${k}]`,f);if(el&&d[k]&&!String(el.value).trim()){el.value=d[k];n++}}toast(n?`Đã điền ${n} trường từ mã QR – kiểm tra lại`:'Các trường đã có dữ liệu')}catch(e){toast(e.message,'err')}return}
+  if(/^https?:\/\//i.test(c)){try{const q=await nxbgdInfo(c);const d={...qrToSach(q),isbn:q.isbn};let n=0;for(const k in d){const el=$(`[name=${k}]`,f);if(el&&d[k]&&!String(el.value).trim()){el.value=d[k];n++}}toast(n?`Đã điền ${n} trường từ mã QR – kiểm tra lại`:'Các trường đã có dữ liệu')}catch(e){const el=$('[name=nxb]',f);if(el&&!el.value)el.value='Giáo dục Việt Nam';qrDuPhong(c,e.message)}return}
   $('[name=isbn]',f).value=c;A.timISBN($('[onclick^="A.timISBN"]',f))}})};
 
 /* Nhập nhanh cả bộ sách giáo khoa */
