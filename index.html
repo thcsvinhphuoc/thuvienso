@@ -384,7 +384,7 @@ const KEYS={NhatKy:'id',TietDoc:'id',DanhMuc:'id',Sach:'id',BanSach:'dkcb',BanDo
 const TABLES=Object.keys(KEYS);
 const TT=['Sẵn sàng','Đang mượn','Hỏng','Mất','Thanh lý'];
 const TTC={'Sẵn sàng':'t-ok','Đang mượn':'t-bo','Hỏng':'t-wa','Mất':'t-er','Thanh lý':'t-mu'};
-const DEF_CFG={namHoc:'',boSach:'',loaiMaVach:'c128',hienTen:'',thuThach:'',tenTruong:'Trường THCS Vĩnh Phước',diaChi:'',dienThoai:'',email:'',youtube:'',facebook:'',logoUrl:'',
+const DEF_CFG={ngayNghi:'',nguoiLapBieu:'',hieuTruong:'',namHoc:'',boSach:'',loaiMaVach:'c128',hienTen:'',thuThach:'',tenTruong:'Trường THCS Vĩnh Phước',diaChi:'',dienThoai:'',email:'',youtube:'',facebook:'',logoUrl:'',
   gioMoCua:'Thứ Hai – Thứ Sáu\nSáng: 7h00 – 11h00\nChiều: 13h30 – 16h30',
   gioiThieu:'Thư viện nhà trường là nơi lưu giữ và giới thiệu sách giáo khoa, sách giáo viên, sách tham khảo, sách thiếu nhi… phục vụ việc dạy và học của thầy cô và các em học sinh.\n\nCác em có thể tra cứu sách trực tuyến trên trang này trước khi đến thư viện mượn sách.',
   tienToDKCB:'VP',soChuSoDKCB:'5',ngayMuonHS:'7',ngayMuonGV:'30',toiDaHS:'3',toiDaGV:'10',
@@ -850,7 +850,7 @@ A.xoaDM=async function(id){const n=S.Sach.filter(s=>s.danhMucId===id).length;if(
 const TK={from:'',to:''};
 function schoolYearStart(){return nhBatDau(namHocNay())}
 function pgThongKe(){if(!TK.from){TK.from=schoolYearStart();TK.to=today()}
-  $('#ct').innerHTML=`<div class="phd"><div><h2>Báo cáo thống kê</h2><p>Số liệu mượn trả và tình trạng kho sách</p></div><div class="acts"><button class="btn pri" onclick="A.xuatTK()">📤 Xuất báo cáo Excel</button></div></div>
+  $('#ct').innerHTML=`<div class="phd"><div><h2>Báo cáo thống kê</h2><p>Số liệu mượn trả và tình trạng kho sách</p></div><div class="acts"><button class="btn" onclick="A.soThongKeBD()">📊 Sổ thống kê bạn đọc</button><button class="btn" onclick="A.soDangKySGK()">📕 Sổ đăng ký SGK</button><button class="btn pri" onclick="A.xuatTK()">📤 Xuất báo cáo Excel</button></div></div>
   <div class="card filt"><div class="fr">${fld('Từ ngày','f',TK.from,{type:'date',attr:'id="tkF"'})}${fld('Đến ngày','t',TK.to,{type:'date',attr:'id="tkT"'})}
   <button class="btn" onclick="TK.from=schoolYearStart();TK.to=today();pgThongKe()">Năm học này</button><button class="btn" onclick="const d=new Date();TK.from=d.getFullYear()+'-'+z2(d.getMonth()+1)+'-01';TK.to=today();pgThongKe()">Tháng này</button><select class="inp" style="width:auto" title="Xem cả một năm học" onchange="if(this.value){const [a,e]=nhKhoang(+this.value);TK.from=a;TK.to=e<today()?e:today();pgThongKe()}"><option value="">📅 Chọn năm học…</option>${dsNamHoc().map(y=>`<option value="${y}" ${TK.from===nhKhoang(y)[0]?'selected':''}>Năm học ${nhTen(y)}</option>`).join('')}</select></div></div><div id="tkB"></div><div id="tkY" style="margin-top:14px"></div>`;
   $('#tkF').onchange=e=>{TK.from=e.target.value;fillTK()};$('#tkT').onchange=e=>{TK.to=e.target.value;fillTK()};fillTK();fillTKY()}
@@ -1173,6 +1173,8 @@ function fillMI(){$('#miTabs').innerHTML=[['nhan','🏷️ Nhãn gáy sách'],['
    <div class="card g"><h3>📗 Sổ mượn – trả sách</h3><p class="small muted">Các lượt mượn trong khoảng thời gian, kèm ngày trả.</p><button class="btn pri" onclick="A.inSoMuon()">🖨 In sổ</button></div>
    <div class="card g"><h3>⏰ Danh sách sách quá hạn</h3><p class="small muted">Theo từng lớp, gửi GVCN nhắc học sinh trả sách.</p><button class="btn pri" onclick="A.inQuaHan()">🖨 In danh sách</button></div>
    <div class="card g"><h3>📘 Sổ đăng ký tổng quát</h3><p class="small muted">Tổng hợp các lần nhập sách (theo ngày, nguồn), sách xuất (thanh lý, mất) và số còn lại.</p><button class="btn pri" onclick="A.inSoTQ()">🖨 In sổ</button></div>
+   <div class="card g"><h3>📕 Sổ đăng ký sách giáo khoa</h3><p class="small muted">Theo mẫu của trường: từng đầu SGK theo năm học nhập, số chứng từ, đơn giá, thành tiền, kiểm kê Mất/Còn 5 năm. Nạp được sổ cũ từ Excel.</p><button class="btn pri" onclick="A.soDangKySGK()">📕 Lập sổ</button></div>
+   <div class="card g"><h3>📊 Sổ thống kê bạn đọc</h3><p class="small muted">Theo mẫu của trường: lượt bạn đọc từng ngày theo khối 6–9, giáo viên; lượt mượn theo loại sách; cộng từng tháng và cả năm học.</p><button class="btn pri" onclick="A.soThongKeBD()">📊 Lập sổ</button></div>
    <div class="card g"><h3>🗓️ Kế hoạch hoạt động năm học</h3><p class="small muted">Mẫu kế hoạch điền sẵn số liệu, lịch công tác theo tháng – trình Hiệu trưởng duyệt.</p><div class="acts"><button class="btn pri" onclick="A.keHoach()">🖨 In</button><button class="btn" onclick="A.keHoach(true)">📝 Word</button></div></div></div>`}
 function theList(){return S.BanDoc.filter(b=>(b.loai||'HS')===MI.loai&&(!MI.lop||b.lop===MI.lop)).sort((a,b)=>String(a.lop).localeCompare(String(b.lop),'vi',{numeric:true})||lastName(a.hoTen).localeCompare(lastName(b.hoTen),'vi'))}
 function theHTML(b){const c=getCfg();return`<div class="tv"><div class="h"><div class="lo">${c.logoUrl?`<img src="${esc(c.logoUrl)}">`:'📚'}</div><div><b>THẺ THƯ VIỆN</b><small>${esc(c.tenTruong.toUpperCase())}</small></div></div>
@@ -2070,19 +2072,19 @@ async function localExtra(db,req,who){
   return null}
 
 /* ---------- Trạng thái kết nối (mục 4: "nhập sách mà Google Sheets không thấy") ---------- */
-const SERVER_VER='9';
+const SERVER_VER='10';
 function connBadge(){if(DEMO())return`<a class="conn bad" href="#/admin/thiet-lap" title="Dữ liệu chỉ lưu trên trình duyệt này, KHÔNG lưu lên Google Sheets">⚠ Dùng thử<span class="cl"> – chưa lưu lên Google Sheets</span></a>`;
   return`<button class="conn ok" onclick="A.kiemTraKN()" title="Bấm để kiểm tra kết nối">☁<span class="cl"> Google Sheets${CONN.ten?' · '+esc(CONN.ten):''}</span></button>`}
 const CONN={ten:'',ver:'',checked:false};
 async function pingServer(){const r=await fetch(apiUrl+(apiUrl.includes('?')?'&':'?')+'action=ping&t='+Date.now());const j=await r.json();if(!j.ok)throw new Error(j.error||'Máy chủ trả lỗi');CONN.ten=j.ten||'';CONN.ver=String(j.version||'');return j}
 async function autoPing(){if(DEMO()||CONN.checked)return;CONN.checked=true;try{const j=await pingServer();const b=$('.conn.ok');if(b)b.outerHTML=connBadge();
-  if(String(j.version||'')<SERVER_VER)toast('⚠ Máy chủ Apps Script đang chạy bản cũ (phiên bản '+(j.version||'?')+'). Hãy dán Code.gs mới, chạy setup và Triển khai › Phiên bản mới.','err')}catch(e){}}
+  if(+(j.version||0)<+SERVER_VER)toast('⚠ Máy chủ Apps Script đang chạy bản cũ (phiên bản '+(j.version||'?')+'). Hãy dán Code.gs mới, chạy setup và Triển khai › Phiên bản mới.','err')}catch(e){}}
 A.kiemTraKN=async function(){if(DEMO()){modal('⚠ Đang ở chế độ dùng thử',`<p>Trang này <b>chưa kết nối Google Sheets</b>: mọi sách, bạn đọc, phiếu mượn đang chỉ lưu trên trình duyệt của <b>thiết bị này</b> – vì vậy mở Google Sheets sẽ không thấy gì.</p>
    <p><b>Thường gặp nhất:</b></p><ul><li>File <code>index.html</code> đưa lên GitHub là bản cũ, chưa có dòng <code>const API_URL = '…/exec'</code>. → Tải lên lại bản mới.</li><li>Điện thoại mở trang lưu trong bộ nhớ đệm. → Kéo xuống để tải lại, hoặc gỡ app rồi cài lại.</li><li>Đang mở file index.html trên máy (đường dẫn bắt đầu bằng file:///). → Mở địa chỉ GitHub Pages.</li></ul>
    <p><b>Chuyển dữ liệu đã nhập thử lên Google Sheets:</b> Thiết lập › <i>Tải bản sao lưu (JSON)</i> → mở trang đã kết nối → Thiết lập › <i>Khôi phục từ bản sao lưu</i>.</p>`,{noOk:true,cancel:'Đã hiểu'});return}
   busy(true);let j,err;try{j=await pingServer()}catch(e){err=e}finally{busy(false)}
   if(err){modal('❌ Không kết nối được máy chủ',`<p>${esc(err.message)}</p><ul><li>Kiểm tra mạng Internet.</li><li>Trong Apps Script: Triển khai › Quản lý bản triển khai – quyền truy cập phải là <b>Bất kỳ ai</b>.</li><li>Sau khi sửa Code.gs phải chạy <b>setup</b> một lần (cấp quyền) rồi <b>Triển khai › Phiên bản mới</b>.</li></ul>`,{noOk:true,cancel:'Đóng'});return}
-  const L=[['Sach','Đầu sách'],['BanSach','Bản sách (ĐKCB)'],['BanDoc','Bạn đọc'],['MuonTra','Phiếu mượn']];const old=String(j.version||'')<SERVER_VER;
+  const L=[['Sach','Đầu sách'],['BanSach','Bản sách (ĐKCB)'],['BanDoc','Bạn đọc'],['MuonTra','Phiếu mượn']];const old=+(j.version||0)<+SERVER_VER;
   modal('✅ Đã kết nối Google Sheets',`<p style="margin-top:0">File dữ liệu: <b>${esc(j.ten||'')}</b><br>Phiên bản máy chủ: <b>${esc(j.version||'?')}</b> ${old?'<span class="tag t-er">cũ – cần triển khai bản mới</span>':'<span class="tag t-ok">mới nhất</span>'}</p>
    <table class="t"><tr><th>Bảng</th><th>Trên Google Sheets</th><th>Trên máy này</th></tr>${L.map(([k,n])=>`<tr><td>${n} <span class="muted small">(trang ${k})</span></td><td><b>${j.dem[k]}</b></td><td>${S[k].length}${S[k].length!==j.dem[k]?' <span class="tag t-wa">khác – bấm Tải lại</span>':''}</td></tr>`).join('')}</table>
    <p class="small muted">Sách mới nằm ở trang tính <b>Sach</b> (thông tin đầu sách) và <b>BanSach</b> (từng cuốn, số ĐKCB), thêm vào <b>cuối</b> bảng. Nếu số liệu khớp mà vẫn không thấy, kiểm tra xem đang mở đúng file Google Sheets có tên ở trên chưa.</p>`,{noOk:true,cancel:'Đóng'})};
@@ -2195,7 +2197,7 @@ A.nhapBoSGK=function(){const dms=sortDM(S.DanhMuc);const dmSGK=(dms.find(d=>/gi[
   const m=modal('📚 Nhập nhanh bộ sách giáo khoa',`<div class="fgrid">${fld('Khối lớp','khoi','9',{type:'select',options:[['6','Lớp 6'],['7','Lớp 7'],['8','Lớp 8'],['9','Lớp 9']]})}
    ${fld('Bộ sách','bo','Kết nối tri thức với cuộc sống',{type:'select',options:[['Kết nối tri thức với cuộc sống','Kết nối tri thức với cuộc sống'],['Chân trời sáng tạo','Chân trời sáng tạo'],['Cánh Diều','Cánh Diều']]})}
    ${fld('Loại','loai','SGK',{type:'select',options:[['SGK','Sách giáo khoa (học sinh)'],['SGV','Sách giáo viên'],['SBT','Sách bài tập']]})}${fld('Số bản mỗi đầu sách','n','1',{type:'number',attr:'min=0 max=300',hint:'Tự cấp số ĐKCB. Để 0 nếu sách đã dán mã vạch cũ.'})}
-   ${fld('Danh mục','danhMucId',dmSGK,{type:'select',options:[['','— Chưa phân loại —'],...dms.map(x=>[x.id,x.ten])]})}${fld('Nguồn','nguon','Cấp phát',{type:'select',options:[['Cấp phát','Cấp phát'],['Mua','Mua'],['Tặng','Tặng']]})}
+   ${fld('Danh mục','danhMucId',dmSGK,{type:'select',options:[['','— Chưa phân loại —'],...dms.map(x=>[x.id,x.ten])]})}${fld('Nguồn','nguon','Cấp phát',{type:'select',options:[['Cấp phát','Cấp phát'],['Mua','Mua'],['Tặng','Tặng']]})}${fld('Số chứng từ','chungTu','',{ph:'vd: PN 12/2026'})}${fld('Đơn giá (đ)','donGia','',{type:'number',hint:'Ghi vào Sổ đăng ký SGK'})}
    ${fld('Năm xuất bản','namXB',String(new Date().getFullYear()),{type:'number'})}${fld('Danh sách đầu sách (mỗi dòng một cuốn – sửa cho đúng thực tế)','ds','',{type:'textarea',rows:9,cls:'full'})}</div>
    <p class="small muted">Tên sách được ghi theo dạng của NXB Giáo dục, vd “Tin học 9 (Kết nối tri thức với cuộc sống)”. Sách đã có trong kho (trùng tên) chỉ được thêm bản.</p>`,
    {wide:1,ok:'Nhập vào kho',onOk:async el=>{const v=vals(el);const n=Math.max(0,Math.min(300,parseInt(v.n)||0));const t=today();
@@ -2203,8 +2205,8 @@ A.nhapBoSGK=function(){const dms=sortDM(S.DanhMuc);const dmSGK=(dms.find(d=>/gi[
     const lines=v.ds.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.length)throw new Error('Danh sách trống');
     const sach=[],ban=[],ids=[];let moi=0;const pool=genDKCB(lines.length*n);let pi=0;
     for(const x of lines){const nd=ten(x);let s=S.Sach.find(y=>norm(y.nhanDe)===norm(nd));
-      if(!s){s={id:uid('S'),nhanDe:nd,tacGia:'',nxb:'Giáo dục Việt Nam',namXB:v.namXB,danhMucId:v.danhMucId,gia:'',isbn:'',hashtag:'SGK lớp '+v.khoi,moTa:'',noiBat:'',anhBia:'',ngayTao:t};s.soPhanLoai=goiYDDC(s);sach.push(s);moi++}ids.push(s.id);
-      for(let i=0;i<n;i++)ban.push({dkcb:pool[pi++],sachId:s.id,tinhTrang:'Sẵn sàng',ngayNhap:t,nguon:v.nguon,ghiChu:''})}
+      if(!s){s={id:uid('S'),nhanDe:nd,tacGia:'',nxb:'Giáo dục Việt Nam',namXB:v.namXB,danhMucId:v.danhMucId,gia:v.donGia||'',isbn:'',hashtag:'SGK lớp '+v.khoi,moTa:'',noiBat:'',anhBia:'',ngayTao:t};s.soPhanLoai=goiYDDC(s);sach.push(s);moi++}ids.push(s.id);
+      for(let i=0;i<n;i++)ban.push({dkcb:pool[pi++],sachId:s.id,tinhTrang:'Sẵn sàng',ngayNhap:t,nguon:v.nguon,ghiChu:'',chungTu:v.chungTu||'',donGia:v.donGia||'',namXB:v.namXB||''})}
     const ops=[];if(sach.length)ops.push({t:'upsert',table:'Sach',rows:sach});if(ban.length)ops.push({t:'upsert',table:'BanSach',rows:ban});if(!ops.length)throw new Error('Không có gì mới để nhập');
     if(!await commit(ops,`Đã nhập ${moi} đầu sách mới, ${ban.length} bản`))return false;const tenBo=`Bộ ${v.loai==='SGV'?'SGV':v.loai==='SBT'?'SBT':'SGK'} lớp ${v.khoi} – ${v.bo}`;await boTuSGK(tenBo,ids,'');toast(`Đã lưu thành “${tenBo}” – dùng nút 📚 Mượn theo bộ khi cho mượn`);if(ban.length&&await ask(`Đã nhập ${ban.length} bản (${ban[0].dkcb} → ${ban[ban.length-1].dkcb}). In nhãn ngay?`,'In nhãn',false))A.qcInNhan();else rerender()}});
   const fillDS=()=>{$('[name=ds]',m.root).value=MON_SGK(+$('[name=khoi]',m.root).value).join('\n')};$('[name=khoi]',m.root).onchange=fillDS;fillDS()};
@@ -2656,6 +2658,133 @@ function qpFill(){const el=$('#qpG');if(!el)return;const t=today();const dang={}
 function qcAutoHTML(){return`<label class="chk qca"><input type="checkbox" ${QC.auto?'checked':''} onchange="QC.auto=this.checked;LS.set('tv_qcauto',this.checked?'1':'');fillQC()"> ⚡ <b>Quét là cho mượn ngay</b> <span class="small muted">(không cần bấm Xác nhận)</span></label>`}
 /* Tự xác nhận khi bật "quét là cho mượn ngay" */
 let qcAutoT=0;function qcAutoGo(){if(!QC.auto||QC.mode!=='muon'||!QC.reader||!QC.cart.length||QC.autoBusy)return;clearTimeout(qcAutoT);qcAutoT=setTimeout(async()=>{if(!QC.reader||!QC.cart.length)return;QC.autoBusy=true;try{await qcMuon()}finally{QC.autoBusy=false}},350)}
+
+/* ================== PHẦN 15: SỔ THỐNG KÊ BẠN ĐỌC & SỔ ĐĂNG KÝ SÁCH GIÁO KHOA (theo mẫu của trường) ================== */
+/* Loại sách theo tên danh mục */
+function loaiSo(ten){const n=norm(ten||'');if(/giao vien|nghiep vu/.test(n))return'NV';if(/giao khoa|sgk/.test(n))return'SGK';if(/tham khao/.test(n))return'TK';if(/thieu nhi|truyen/.test(n))return'TN';if(/bao|tap chi/.test(n))return'BAO';return'KHAC'}
+function chuKy(){const c=getCfg();return{lap:c.nguoiLapBieu||'',ht:c.hieuTruong||''}}
+async function luuChuKy(lap,ht){const c=getCfg();const rows=[];if(lap!==(c.nguoiLapBieu||''))rows.push({key:'nguoiLapBieu',value:lap});if(ht!==(c.hieuTruong||''))rows.push({key:'hieuTruong',value:ht});if(rows.length)await commit([{t:'upsert',table:'CaiDat',rows}],'')}
+function soFooter(cols,lap,ht){return`<p style="margin-top:10px">Nhận thực trong sổ này có ............... trang đã đánh số và đóng thành quyển.</p>
+  <div class="sig" style="justify-content:space-between;padding:0 30px"><div><i>Ngày ..... tháng ..... năm ........</i><b style="margin:2px 0 0">Người lập biểu</b><i>(Ký, ghi rõ họ tên)</i><div style="height:62px"></div><b>${esc(lap)}</b></div>
+  <div><i>Ngày ..... tháng ..... năm ........</i><b style="margin:2px 0 0">Hiệu trưởng</b><i>(Ký, đóng dấu)</i><div style="height:62px"></div><b>${esc(ht)}</b></div></div>`}
+const SO_CSS='table.so{width:100%;border-collapse:collapse;font-size:9pt}table.so th,table.so td{border:1px solid #000;padding:2px 3px;text-align:center}table.so th{background:#eee;font-weight:bold}table.so td.l{text-align:left}table.so tr.mh td{font-weight:bold;text-align:left;background:#f3f3f3}table.so tr.tg td{font-weight:bold}table.so tr.nn td.nt{font-style:italic;text-align:left}table.so thead{display:table-header-group}table.so tr{page-break-inside:avoid}.sig div{text-align:center}.sig i{display:block}';
+async function xuatAOA(name,aoa,merges,cols){busy(true);try{const X=await loadXLSX();const wb=X.utils.book_new();const ws=X.utils.aoa_to_sheet(aoa);ws['!merges']=merges.map(([r1,c1,r2,c2])=>({s:{r:r1,c:c1},e:{r:r2,c:c2}}));ws['!cols']=cols.map(w=>({wch:w}));X.utils.book_append_sheet(wb,ws,'So');X.writeFile(wb,name+'.xlsx')}
+  catch(e){const b=new Blob(['﻿'+aoa.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name+'.csv';a.click();toast('Không tải được thư viện Excel – đã xuất file CSV','err')}finally{busy(false)}}
+
+/* ======================= SỔ THỐNG KÊ BẠN ĐỌC ======================= */
+function ngayNghiMap(){try{return JSON.parse(getCfg().ngayNghi||'{}')||{}}catch(e){return{}}}
+function parseNgayNghi(txt){const o={};String(txt||'').split('\n').forEach(l=>{l=l.trim();if(!l)return;const m=l.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s*[-–]\s*(\d{1,2})\/(\d{1,2})\/(\d{4}))?\s*(.*)$/);if(!m)return;
+  const d1=`${m[3]}-${z2(m[2])}-${z2(m[1])}`,d2=m[4]?`${m[6]}-${z2(m[5])}-${z2(m[4])}`:d1;const nd=m[7].trim()||'Nghỉ';for(let d=d1;d<=d2&&d>='2000';d=addDays(d,1))o[d]=nd});return o}
+function ngayNghiText(o){const ks=Object.keys(o).sort();const out=[];let i=0;while(i<ks.length){let j=i;while(j+1<ks.length&&o[ks[j+1]]===o[ks[i]]&&addDays(ks[j],1)===ks[j+1])j++;out.push(vn(ks[i])+(j>i?' - '+vn(ks[j]):'')+' '+o[ks[i]]);i=j+1}return out.join('\n')}
+const TKBD_H=['K6','K7','K8','K9','KXD'],TKBD_LHS=['TK','TN','KHAC','SGK','BAO'],TKBD_LGV=['TK','NV','TN','KHAC','SGK','BAO'];
+function soTKBDData(y,tietDoc){const [a]=nhKhoang(y);const kb=nhKB(y)||{};const b=kb.ketThuc||(y+1)+'-05-31';const bm=mapBy(S.BanDoc,'ma'),sm=mapBy(S.Sach,'id'),dm=mapBy(S.DanhMuc,'id');const nn=ngayNghiMap();
+  const day={};const get=d=>day[d]||(day[d]={hs:{K6:new Set(),K7:new Set(),K8:new Set(),K9:new Set(),KXD:new Set()},hsT:{K6:0,K7:0,K8:0,K9:0,KXD:0},gv:new Set(),lhs:{},lgv:{}});
+  const khoi=l=>{const m=String(l||'').match(/^(\d+)/);return m&&+m[1]>=6&&+m[1]<=9?'K'+m[1]:'KXD'};
+  S.MuonTra.forEach(m=>{const d=m.ngayMuon;if(!d||d<a||d>b)return;const r=bm[m.maBanDoc]||{};const o=get(d);const ls=loaiSo((dm[(sm[m.sachId]||{}).danhMucId]||{}).ten);
+    if(r.loai==='GV'){o.gv.add(m.maBanDoc);o.lgv[ls]=(o.lgv[ls]||0)+1}else{o.hs[khoi(m.lop||r.lop)].add(m.maBanDoc);const l2=ls==='NV'?'KHAC':ls;o.lhs[l2]=(o.lhs[l2]||0)+1}});
+  if(tietDoc)S.TietDoc.forEach(t=>{if(!t.ngay||t.ngay<a||t.ngay>b)return;get(t.ngay).hsT[khoi(t.lop)]+=(+t.soHS||0)});
+  const row=d=>{const o=day[d];if(!o)return null;const h=TKBD_H.map(k=>o.hs[k].size+o.hsT[k]);const th=h.reduce((x,y)=>x+y,0);return{h,th,gv:o.gv.size,tong:th+o.gv.size,lhs:TKBD_LHS.map(k=>o.lhs[k]||0),lgv:TKBD_LGV.map(k=>o.lgv[k]||0)}};
+  const months=[];let cur=a.slice(0,7);const endM=b.slice(0,7);
+  while(cur<=endM){const [yy,mm]=cur.split('-').map(Number);const first=cur+'-01';const last=iso(new Date(yy,mm,0));const days=[];
+    for(let d=first<a?a:first;d<=last&&d<=b;d=addDays(d,1)){const w=new Date(d+'T00:00:00').getDay();const r=row(d);if(w===0&&!r&&!nn[d])continue;days.push({d,r,nghi:nn[d]||''})}
+    const sum=days.reduce((s,x)=>{if(!x.r)return s;x.r.h.forEach((v,i)=>s.h[i]+=v);s.th+=x.r.th;s.gv+=x.r.gv;s.tong+=x.r.tong;x.r.lhs.forEach((v,i)=>s.lhs[i]+=v);x.r.lgv.forEach((v,i)=>s.lgv[i]+=v);return s},{h:[0,0,0,0,0],th:0,gv:0,tong:0,lhs:[0,0,0,0,0],lgv:[0,0,0,0,0,0]});
+    months.push({ten:'Tháng '+mm+'/'+yy,days,sum});cur=iso(new Date(yy,mm,1)).slice(0,7)}
+  const nam=months.reduce((s,m)=>{m.sum.h.forEach((v,i)=>s.h[i]+=v);s.th+=m.sum.th;s.gv+=m.sum.gv;s.tong+=m.sum.tong;m.sum.lhs.forEach((v,i)=>s.lhs[i]+=v);m.sum.lgv.forEach((v,i)=>s.lgv[i]+=v);return s},{h:[0,0,0,0,0],th:0,gv:0,tong:0,lhs:[0,0,0,0,0],lgv:[0,0,0,0,0,0]});
+  return{y,a,b,months,nam}}
+const tkbdCells=(r,blank)=>{const f=v=>blank&&!v?'':v;return[...r.h.map(f),f(r.th),f(r.gv),f(r.tong),...r.lhs.map(f),...r.lgv.map(f)]};
+A.soThongKeBD=function(){const Ys=dsNamHoc();const ck=chuKy();
+  const m=modal('📊 Sổ thống kê bạn đọc',`<div class="fgrid">${fld('Năm học','y',String(namHocNay()),{type:'select',options:Ys.map(y=>[String(y),nhTen(y)])})}${fld('','td',false,{type:'check',text:'Cộng cả học sinh dự tiết đọc thư viện vào số lượt bạn đọc'})}
+   ${fld('Người lập biểu','lap',ck.lap)}${fld('Hiệu trưởng','ht',ck.ht)}
+   ${fld('Ngày nghỉ / ghi chú (mỗi dòng: ngày [- đến ngày] nội dung)','nn',ngayNghiText(ngayNghiMap()),{type:'textarea',rows:4,cls:'full',ph:'20/09/2025 Nghỉ lễ Sene Dolta\n26/01/2026 - 08/02/2026 Nghỉ Tết Nguyên đán'})}</div>
+   <p class="small muted">Số lượt bạn đọc = số người mượn sách trong ngày (mỗi người tính 1 lượt/ngày) theo khối lớp lúc mượn; số theo loại sách = số cuốn được mượn, phân loại theo tên danh mục (giáo khoa, tham khảo, thiếu nhi, nghiệp vụ, báo – tạp chí, khác). Chủ nhật không có hoạt động được bỏ qua.</p>
+   <div class="acts"><button type="button" class="btn pri" id="tkbIn">🖨 In sổ</button><button type="button" class="btn" id="tkbX">📤 Xuất Excel</button></div>`,{wide:1,noOk:true,cancel:'Đóng'});
+  const go=async ex=>{const v=vals(m.root.querySelector('.mb'));await luuChuKy(v.lap.trim(),v.ht.trim());const nn=parseNgayNghi(v.nn);if(JSON.stringify(nn)!==JSON.stringify(ngayNghiMap()))await commit([{t:'upsert',table:'CaiDat',rows:[{key:'ngayNghi',value:JSON.stringify(nn)}]}],'');
+    const D=soTKBDData(+v.y,v.td);ex?xuatTKBD(D,v.lap,v.ht):inTKBD(D,v.lap,v.ht)};
+  $('#tkbIn',m.root).onclick=()=>go(false);$('#tkbX',m.root).onclick=()=>go(true)};
+function inTKBD(D,lap,ht){const c=getCfg();const head=`<thead><tr><th colspan="9">SỐ LƯỢT BẠN ĐỌC</th><th colspan="11">LOẠI SÁCH</th></tr>
+   <tr><th rowspan="2" style="width:62px">Ngày</th><th colspan="6">Học sinh</th><th rowspan="2">Giáo viên</th><th rowspan="2">Tổng cộng</th><th colspan="5">Học sinh</th><th colspan="6">Giáo viên</th></tr>
+   <tr><th>Khối 6</th><th>Khối 7</th><th>Khối 8</th><th>Khối 9</th><th>Không xác định</th><th>Tổng cộng</th><th>Sách tham khảo</th><th>Sách thiếu nhi</th><th>Sách khác</th><th>Sách giáo khoa</th><th>Báo, tạp chí</th><th>Sách tham khảo</th><th>Sách nghiệp vụ</th><th>Sách thiếu nhi</th><th>Sách khác</th><th>Sách giáo khoa</th><th>Báo, tạp chí</th></tr></thead>`;
+  const body=D.months.map(mo=>`<tr class="mh"><td colspan="20">${mo.ten}</td></tr>${mo.days.map(x=>x.nghi&&!x.r?`<tr class="nn"><td>${vn(x.d)}</td><td class="nt" colspan="19">${esc(x.nghi)}</td></tr>`:`<tr><td>${vn(x.d)}</td>${x.r?tkbdCells(x.r,true).map(v=>`<td>${v}</td>`).join(''):'<td></td>'.repeat(19)}</tr>`).join('')}<tr class="tg"><td>Tổng</td>${tkbdCells(mo.sum).map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')+`<tr class="tg"><td>CẢ NĂM</td>${tkbdCells(D.nam).map(v=>`<td>${v}</td>`).join('')}</tr>`;
+  printHTML('So thong ke ban doc '+nhTen(D.y),`<div style="text-align:center"><div style="font-size:11pt">THƯ VIỆN ${esc(c.tenTruong.toUpperCase())}</div><h1 class="dt" style="font-size:18pt;margin:14px 0 4px">SỔ THỐNG KÊ BẠN ĐỌC</h1><div style="font-size:13pt;font-weight:bold;margin-bottom:10px">NĂM HỌC ${D.y} - ${D.y+1}</div></div>
+   <table class="so">${head}<tbody>${body}</tbody></table>${soFooter(20,lap,ht)}`,SO_CSS,'size:A4 landscape;margin:8mm')}
+function xuatTKBD(D,lap,ht){const aoa=[['SỔ THỐNG KÊ BẠN ĐỌC'],['NĂM HỌC '+D.y+' - '+(D.y+1)],[],['SỐ LƯỢT BẠN ĐỌC','','','','','','','','','LOẠI SÁCH'],['Ngày','Học sinh','','','','','','Giáo viên','Tổng cộng','Học sinh','','','','','Giáo viên'],
+   ['','Khối 6','Khối 7','Khối 8','Khối 9','Không xác định','Tổng cộng','','','Sách tham khảo','Sách thiếu nhi','Sách khác','Sách giáo khoa','Báo, tạp chí','Sách tham khảo','Sách nghiệp vụ','Sách thiếu nhi','Sách khác','Sách giáo khoa','Báo, tạp chí']];
+  const M=[[0,0,0,19],[1,0,1,19],[3,0,3,8],[3,9,3,19],[4,0,5,0],[4,1,4,6],[4,7,5,7],[4,8,5,8],[4,9,4,13],[4,14,4,19]];
+  D.months.forEach(mo=>{aoa.push([mo.ten]);M.push([aoa.length-1,0,aoa.length-1,19]);mo.days.forEach(x=>{if(x.nghi&&!x.r){aoa.push([vn(x.d),x.nghi]);M.push([aoa.length-1,1,aoa.length-1,19])}else aoa.push([vn(x.d),...(x.r?tkbdCells(x.r,true):[])])});aoa.push(['Tổng',...tkbdCells(mo.sum)])});
+  aoa.push(['CẢ NĂM',...tkbdCells(D.nam)],[],['Nhận thực trong sổ này có ............... trang đã đánh số và đóng thành quyển.'],['Ngày ..... tháng ..... năm ........','','','','','','','','','','','','','','','','','','Ngày ..... tháng ..... năm ........'],['Người lập biểu','','','','','','','','','','','','','','','','','','Hiệu trưởng'],['(Ký, ghi rõ họ tên)','','','','','','','','','','','','','','','','','','(Ký, đóng dấu)'],[],[],[],[lap,'','','','','','','','','','','','','','','','','',ht]);
+  xuatAOA('So_thong_ke_ban_doc_'+D.y+'-'+(D.y+1),aoa,M,[11,7,7,7,7,9,8,9,9,9,9,8,9,8,9,9,9,8,9,8])}
+
+/* ======================= SỔ ĐĂNG KÝ SÁCH GIÁO KHOA ======================= */
+const isMat=b=>b.tinhTrang==='Mất'||b.tinhTrang==='Thanh lý';
+function ngayMat(){const o={};S.ThanhLy.forEach(t=>{let ds=[];try{const a=JSON.parse(t.ds);if(Array.isArray(a))ds=a}catch(e){ds=String(t.ds||'').split(/[,;\s]+/)}ds.forEach(d=>{d=String(d&&d.dkcb||d).trim();if(d&&(!o[d]||t.ngay<o[d]))o[d]=t.ngay})});
+  const bs=mapBy(S.BanSach,'dkcb');S.MuonTra.forEach(m=>{const b=bs[m.dkcb];if(b&&isMat(b)&&m.ngayTra&&!o[m.dkcb])o[m.dkcb]=m.ngayTra});return o}
+function dmSGK(){return S.DanhMuc.filter(d=>loaiSo(d.ten)==='SGK').map(d=>d.id)}
+function soSGKData(y0,dmIds){const set=new Set(dmIds);const nay=namHocNay();const nm=ngayMat();const sachs=S.Sach.filter(s=>set.has(s.danhMucId)).sort((a,b)=>a.nhanDe.localeCompare(b.nhanDe,'vi',{numeric:true}));
+  const ids=new Set(sachs.map(s=>s.id));const bs=S.BanSach.filter(b=>ids.has(b.sachId));let minY=Math.min(y0,nay);bs.forEach(b=>{const y=namHocCua(b.ngayNhap);if(y!=null&&y<minY)minY=y});
+  const cols=[0,1,2,3,4].map(i=>y0+i);const asOf=Y=>Y>nay?null:(Y===nay?today():nhKhoang(Y)[1]);let stt=0;
+  const G=sachs.map(s=>{const mine=bs.filter(b=>b.sachId===s.id);const rows=[];const tit=cols.map(()=>({mat:0,con:0,has:false}));
+    for(let y=minY;y<=Math.max(nay,y0);y++){const batch=mine.filter(b=>(namHocCua(b.ngayNhap)??minY)===y);if(!batch.length){rows.push({y});continue}
+      const ct=[...new Set(batch.map(b=>b.chungTu).filter(Boolean))].join(', ');const nx=[...new Set(batch.map(b=>b.namXB||s.namXB).filter(Boolean))].join(', ');const gia=+(batch.find(b=>b.donGia)||{}).donGia||+s.gia||0;
+      const kk=cols.map((Y,i)=>{const t=asOf(Y);if(!t||y>Y)return null;const ex=batch.filter(b=>!b.ngayNhap||b.ngayNhap<=t);const mat=ex.filter(b=>isMat(b)&&(!nm[b.dkcb]||nm[b.dkcb]<=t)).length;tit[i].mat+=mat;tit[i].con+=ex.length-mat;tit[i].has=true;return{mat,con:ex.length-mat}});
+      rows.push({y,stt:++stt,ct,nx,n:batch.length,gia,tien:batch.length*gia,kk})}
+    return{s,rows,tit}});return{y0,cols,G}}
+A.soDangKySGK=function(){const ck=chuKy();const dms=sortDM(S.DanhMuc);const def=new Set(dmSGK());
+  const m=modal('📕 Sổ đăng ký sách giáo khoa',`<div class="fgrid">${fld('Sổ bắt đầu từ năm học','y',String(namHocNay()),{type:'select',options:dsNamHoc().map(y=>[String(y),nhTen(y)]),hint:'Cột kiểm kê Mất/Còn tính cho 5 năm kể từ năm học này.'})}
+   ${fld('Người lập biểu','lap',ck.lap)}${fld('Hiệu trưởng','ht',ck.ht)}
+   <div class="fl full"><label>Danh mục tính là sách giáo khoa</label><div class="acts">${dms.map(d=>`<label class="chk"><input type="checkbox" data-dm="${esc(d.id)}" ${def.has(d.id)?'checked':''}> ${esc(d.ten)}</label>`).join('')}</div></div></div>
+   <p class="small muted">Mỗi đầu sách liệt kê theo năm học nhập kho: số chứng từ, năm xuất bản, số bản, đơn giá, thành tiền; cột Mất/Còn tính từ bản sách bị mất / thanh lý. Sổ cũ trên giấy/Excel có thể nạp vào bằng nút “Nạp sổ cũ”.</p>
+   <div class="acts"><button type="button" class="btn pri" id="sgIn">🖨 In sổ</button><button type="button" class="btn" id="sgX">📤 Xuất Excel</button><button type="button" class="btn or" id="sgNap">📥 Nạp sổ đăng ký SGK cũ (Excel)</button></div>`,{wide:1,noOk:true,cancel:'Đóng'});
+  const go=async ex=>{const v=vals(m.root.querySelector('.mb'));await luuChuKy(v.lap.trim(),v.ht.trim());const ids=$$('[data-dm]:checked',m.root).map(x=>x.dataset.dm);if(!ids.length)return toast('Chọn ít nhất một danh mục','err');
+    const D=soSGKData(+v.y,ids);if(!D.G.length)return toast('Chưa có đầu sách nào trong các danh mục đã chọn','err');ex?xuatSGK(D,v.lap,v.ht):inSGK(D,v.lap,v.ht)};
+  $('#sgIn',m.root).onclick=()=>go(false);$('#sgX',m.root).onclick=()=>go(true);$('#sgNap',m.root).onclick=()=>{m.close();A.napSoSGK()}};
+const sgkCells=r=>r.n?[r.stt,r.ct,r.nx,r.n,r.gia||'',r.tien||'',...r.kk.flatMap(k=>k?[k.mat,k.con]:['',''])]:['','','','','','',...Array(10).fill('')];
+function inSGK(D,lap,ht){const c=getCfg();const kb=nhKB(D.y0)||{};const tu=(nhBatDau(D.y0)).slice(0,7).split('-').reverse().join('/'),den=(kb.ketThuc||(D.y0+1)+'-05-31').slice(0,7).split('-').reverse().join('/');
+  const head=`<thead><tr><th rowspan="3" style="width:150px">NĂM HỌC</th><th rowspan="3">SỐ ĐĂNG KÝ (STT)</th><th rowspan="3">SỐ CHỨNG TỪ</th><th rowspan="3">NĂM XUẤT BẢN</th><th rowspan="3">TỔNG SỐ BẢN</th><th rowspan="3">ĐƠN GIÁ</th><th rowspan="3">THÀNH TIỀN</th><th colspan="10">KIỂM KÊ HẰNG NĂM</th></tr>
+   <tr>${D.cols.map(Y=>`<th colspan="2">${Y}</th>`).join('')}</tr><tr>${D.cols.map(()=>'<th>Mất</th><th>Còn</th>').join('')}</tr></thead>`;
+  const money=v=>v?Number(v).toLocaleString('vi-VN'):'';
+  const body=D.G.map(g=>`<tr class="mh"><td class="l">${esc(g.s.nhanDe)}</td><td colspan="6"></td>${g.tit.map(t=>t.has?`<td><b>${t.mat}</b></td><td><b>${t.con}</b></td>`:'<td></td><td></td>').join('')}</tr>
+   ${g.rows.map(r=>{const v=sgkCells(r);return`<tr><td class="l">${nhTen(r.y).replace('–','-')}</td>${v.map((x,i)=>`<td${i===1?' class="l"':''}>${i===4||i===5?money(x):esc(x)}</td>`).join('')}</tr>`}).join('')}`).join('');
+  printHTML('So dang ky SGK',`<div style="display:flex;justify-content:space-between"><div style="text-align:center;font-size:11pt"><b>THƯ VIỆN</b><br>${esc(c.tenTruong)}</div><div></div></div>
+   <div style="text-align:center"><h1 class="dt" style="font-size:18pt;margin:18px 0 4px">SỔ ĐĂNG KÝ SÁCH GIÁO KHOA</h1><div>Số: ............/TVTH</div><div style="font-style:italic">Bắt đầu từ ${tu} đến ${den}</div></div><br>
+   <table class="so">${head}<tbody>${body}</tbody></table>${soFooter(17,lap,ht)}`,SO_CSS,'size:A4 landscape;margin:8mm')}
+function xuatSGK(D,lap,ht){const c=getCfg();const aoa=[['THƯ VIỆN'],[c.tenTruong],['SỔ ĐĂNG KÝ SÁCH GIÁO KHOA'],['Số: ............/TVTH'],['Bắt đầu từ năm học '+nhTen(D.y0)],[],[],
+   ['NĂM HỌC','SỐ ĐĂNG KÝ(STT)','SỐ CHỨNG TỪ','NĂM XUẤT BẢN','TỔNG SỐ BẢN','ĐƠN GIÁ','THÀNH TIỀN','KIỂM KÊ HẰNG NĂM'],['NGÀY VÀO SỔ','','','','','','',...D.cols.flatMap(Y=>[Y,''])],['','','','','','','',...D.cols.flatMap(()=>['Mất','Còn'])]];
+  const M=[[0,0,0,9],[1,0,1,9],[2,0,2,9],[3,0,3,9],[4,0,4,9],[7,7,7,16],...[1,2,3,4,5,6].map(cc=>[7,cc,9,cc]),[8,0,9,0],...D.cols.map((_,i)=>[8,7+i*2,8,8+i*2])];
+  D.G.forEach(g=>{aoa.push([g.s.nhanDe,'','','','','','',...g.tit.flatMap(t=>t.has?[t.mat,t.con]:['',''])]);g.rows.forEach(r=>aoa.push([nhTen(r.y).replace('–','-'),...sgkCells(r)]))});
+  aoa.push([],['Nhận thực trong sổ đăng ký sách giáo khoa này có ............... trang đã đánh số và đóng thành quyển'],['Ngày ..... tháng ..... năm ........','','','','','','','','','','','','','','','','Ngày ..... tháng ..... năm ........'],['Người lập biểu','','','','','','','','','','','','','','','','Hiệu trưởng'],['(Ký, ghi rõ họ tên)','','','','','','','','','','','','','','','','(Ký, đóng dấu)'],[],[],[],[lap,'','','','','','','','','','','','','','','',ht]);
+  xuatAOA('So_dang_ky_SGK_'+D.y0,aoa,M,[40,12,18,10,10,11,14,7,7,7,7,7,7,7,7,7,7])}
+
+/* ---------- Nạp sổ đăng ký SGK cũ từ file Excel của trường ---------- */
+function parseSoSGK(aoa){const s=v=>String(v??'').trim();let hr=aoa.findIndex(r=>r.some(c=>/T[ỔO]NG S[ỐO] B[ẢA]N/i.test(s(c))));if(hr<0)return null;
+  const hdr=aoa[hr].map(s);const col=re=>hdr.findIndex(c=>re.test(c));const cNam=col(/N[ĂA]M H[ỌO]C/i),cCT=col(/CH[ỨU]NG T[ỪU]/i),cXB=col(/XU[ẤA]T B[ẢA]N/i),cSo=col(/T[ỔO]NG S[ỐO] B[ẢA]N/i),cGia=col(/[ĐD][ƠO]N GI[ÁA]/i);
+  /* cột kiểm kê: tìm dòng có "Mất" */let kk=[];for(let r=hr+1;r<hr+4&&r<aoa.length;r++){const row=aoa[r].map(s);row.forEach((c,i)=>{if(/^M[ấa]t$/i.test(c))kk.push(i)});if(kk.length)break}
+  const items=[];let cur=null;
+  for(let r=hr+1;r<aoa.length;r++){const row=aoa[r];const a=s(row[cNam<0?0:cNam]);if(!a)continue;if(/^Nh[ậa]n th[ựu]c|^Ng[àa]y \.|^Ng[ườu]*[ờo]i l[ậa]p/i.test(a))break;
+    const ym=a.match(/^(\d{4})\s*[-–]\s*(\d{4})$/);
+    if(!ym){if(/^(NGÀY VÀO SỔ|Mất|Còn)$/i.test(a))continue;let tm=0;for(let i=kk.length-1;i>=0;i--){const mv=s(row[kk[i]]),cv=s(row[kk[i]+1]);if(mv!==''||cv!==''){tm=parseInt(mv)||0;break}}cur={ten:a.replace(/\s+/g,' ').trim(),batch:[],titMat:tm};items.push(cur);continue}
+    const n=parseInt(s(row[cSo]).replace(/[^\d]/g,''))||0;if(!cur||!n)continue;
+    let mat=0;for(let i=kk.length-1;i>=0;i--){const mv=s(row[kk[i]]),cv=s(row[kk[i]+1]);if(mv!==''||cv!==''){mat=parseInt(mv)||0;break}}
+    const ct=s(row[cCT]);cur.batch.push({y:+ym[1],n,ct:/kh[ôo]ng x[áa]c [đd][ịi]nh/i.test(ct)?'':ct,nx:s(row[cXB]).replace(/[^\d]/g,'').slice(0,4),gia:String(parseInt(s(row[cGia]).replace(/[^\d]/g,''))||''),mat:Math.min(mat,n)})}
+  /* số mất ghi chung ở dòng tên sách → phân cho các lần nhập cũ nhất */
+  items.forEach(x=>{let du=(x.titMat||0)-x.batch.reduce((a,b)=>a+b.mat,0);for(const b of x.batch){if(du<=0)break;const k=Math.min(du,b.n-b.mat);b.mat+=k;du-=k}});
+  return items}
+async function napSoSGKFile(){return new Promise(res=>{const inp=document.createElement('input');inp.type='file';inp.accept='.xls,.xlsx';inp.onchange=async()=>{const f=inp.files[0];if(!f)return res(null);busy(true);
+  try{const X=await loadXLSX();const wb=X.read(await f.arrayBuffer());const ws=wb.Sheets[wb.SheetNames[0]];res(X.utils.sheet_to_json(ws,{header:1,raw:false,defval:''}))}catch(e){toast('Không đọc được file: '+e.message,'err');res(null)}finally{busy(false)}};inp.click()})}
+A.napSoSGK=async function(aoaIn){if(!isAdmin())return toast('Cần tài khoản quản trị','err');const aoa=aoaIn||await napSoSGKFile();if(!aoa)return;const items=(parseSoSGK(aoa)||[]).filter(x=>x.batch.length);
+  if(!items.length)return toast('Không nhận ra mẫu Sổ đăng ký SGK trong file (cần cột NĂM HỌC, TỔNG SỐ BẢN…)','err');
+  const dms=sortDM(S.DanhMuc);const dSGK=(dms.find(d=>loaiSo(d.ten)==='SGK'&&!/dung chung/i.test(norm(d.ten)))||dms.find(d=>loaiSo(d.ten)==='SGK')||dms[0]||{}).id;
+  const daNap=new Set(S.BanSach.filter(b=>b.nguon==='Sổ ĐK SGK cũ').map(b=>b.sachId+'|'+namHocCua(b.ngayNhap)));
+  const tim=t=>{const n=norm(t);return S.Sach.find(s=>norm(s.nhanDe)===n||norm(s.nhanDe).startsWith(n+' ('))};
+  const tong=items.reduce((a,x)=>a+x.batch.reduce((b,y)=>b+y.n,0),0),mat=items.reduce((a,x)=>a+x.batch.reduce((b,y)=>b+y.mat,0),0);
+  modal('📥 Nạp sổ đăng ký SGK cũ',`<p style="margin-top:0">Đọc được <b>${items.length}</b> đầu sách, <b>${items.reduce((a,x)=>a+x.batch.length,0)}</b> lần nhập, tổng <b>${tong}</b> bản (trong đó <b>${mat}</b> bản đã mất theo lần kiểm kê gần nhất).</p>
+   <div class="tw" style="max-height:260px"><table class="t"><tr><th>Đầu sách</th><th>Các năm nhập (số bản)</th><th>Trong kho</th></tr>${items.map(x=>{const s=tim(x.ten);return`<tr><td>${esc(x.ten)}</td><td class="small">${x.batch.map(b=>`${nhTen(b.y)}: ${b.n}${b.mat?` (mất ${b.mat})`:''}`).join(' · ')}</td><td class="small">${s?'✔ '+esc(s.nhanDe):'<i>tạo mới</i>'}</td></tr>`}).join('')}</table></div>
+   <div class="fgrid">${fld('Danh mục cho đầu sách mới','dm',dSGK,{type:'select',options:dms.map(d=>[d.id,d.ten])})}</div>
+   <p class="small muted">Mỗi bản sách được tạo trong kho với ngày nhập = đầu năm học ghi trong sổ, đơn giá, năm xuất bản, số chứng từ theo sổ; số bản mất được đánh dấu “Mất”. Lần nhập đã nạp trước đó sẽ được bỏ qua.</p>`,
+   {wide:1,ok:'Nạp vào kho',onOk:async el=>{const v=vals(el);const t=today();const sach=[],ban=[];let skip=0;const need=items.reduce((a,x)=>a+x.batch.reduce((b,y)=>b+y.n,0),0);const pool=genDKCB(need);let pi=0;
+    for(const x of items){let s=tim(x.ten);if(!s){const lb=x.batch[x.batch.length-1];s={id:uid('S'),nhanDe:x.ten,tacGia:'',nxb:'Giáo dục Việt Nam',namXB:lb.nx,danhMucId:v.dm,gia:lb.gia,isbn:'',hashtag:'SGK',moTa:'',noiBat:'',anhBia:'',ngayTao:t};s.soPhanLoai=goiYDDC(s);sach.push(s);S.Sach.push(s)}
+      for(const b of x.batch){if(daNap.has(s.id+'|'+b.y)){skip++;continue}for(let i=0;i<b.n;i++)ban.push({dkcb:pool[pi++],sachId:s.id,tinhTrang:i<b.mat?'Mất':'Sẵn sàng',ngayNhap:nhBatDau(b.y),nguon:'Sổ ĐK SGK cũ',ghiChu:i<b.mat?'Mất (theo sổ cũ)':'',chungTu:b.ct,donGia:b.gia,namXB:b.nx})}}
+    S.Sach=S.Sach.filter(s=>!sach.includes(s));if(!ban.length)throw new Error('Các lần nhập trong sổ đã được nạp trước đó');const ops=[];if(sach.length)ops.push({t:'upsert',table:'Sach',rows:sach});ops.push({t:'upsert',table:'BanSach',rows:ban});
+    if(!await commit(ops,`Đã nạp ${sach.length} đầu sách mới, ${ban.length} bản${skip?`, bỏ qua ${skip} lần nhập đã có`:''}`))return false;rerender()}})};
 
 /* ---------- Excel ---------- */
 let XP=null;
