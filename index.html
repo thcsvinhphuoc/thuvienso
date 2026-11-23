@@ -341,6 +341,9 @@ table.t td.r,table.t th.r{text-align:right}
 .dqb .p{flex:1;border:0;background:transparent;padding:12px 10px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;-webkit-tap-highlight-color:transparent}.dqb .p:active{background:#bbf7d0}.dqb.gv .p:active{background:#bfdbfe}
 .dqb .p b{font-size:14px}.dqb .p span{font-size:28px;font-weight:800;color:#166534;line-height:1.1}.dqb.gv .p span{color:#1d4ed8}.dqb .p small{color:var(--mu);font-size:11px}.dqb .m{border:0;border-left:1px solid #0000001a;background:#ffffff99;width:38px;font-size:20px;cursor:pointer;color:#64748b}
 .dqf{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}.dqn{display:flex;flex-direction:column;font-size:12px;gap:2px}.dqn .inp{padding:5px 8px}
+.tn.khoa{position:relative}.tn.khoa::after{content:"🔒 Bạn đọc";position:absolute;top:8px;left:8px;background:#0f172acc;color:#fff;font-size:11px;padding:2px 8px;border-radius:999px}
+.pdfv{max-height:75vh;overflow:auto;background:#e2e8f0;padding:8px;border-radius:8px;-webkit-user-select:none;user-select:none}.pdfv .pg{background:#fff;margin:0 auto 8px;max-width:900px;box-shadow:0 1px 4px #0002;display:flex;align-items:center;justify-content:center}
+.tnup{border:1px dashed var(--bd);border-radius:8px;padding:8px 10px;background:#fafafa}
 @media (max-width:1000px){
   .g32{grid-template-columns:1fr}
   .hgrid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(3,1fr)}
@@ -982,7 +985,7 @@ function pgHoiDapPub(){const l=[...P.HoiDap].sort((a,b)=>(+a.thuTu||99)-(+b.thuT
 /* ---------- Trang công khai: Thư viện số ---------- */
 const TV={loai:'',mon:'',khoi:'',q:'',page:1,size:16};
 function tnCard(t){const L=LTN[t.loai]||{ten:t.loai,ic:'📁',mau:'#64748b'};const th=thumbOf(t);
-  return`<div class="tn" onclick="openTN('${esc(t.id)}')"><div class="ti" style="background:linear-gradient(135deg,${L.mau}22,${L.mau}55)">${th?`<img src="${esc(th)}" alt="" loading="lazy" onerror="this.remove()">`:`<span>${L.ic}</span>`}</div>
+  return`<div class="tn${t.fileId&&t.quyen==='ban-doc'?' khoa':''}" onclick="openTN('${esc(t.id)}')"><div class="ti" style="background:linear-gradient(135deg,${L.mau}22,${L.mau}55)">${th?`<img src="${esc(th)}" alt="" loading="lazy" onerror="this.remove()">`:`<span>${L.ic}</span>`}</div>
   <div class="tb2"><span class="tag" style="background:${L.mau}1f;color:${L.mau};align-self:flex-start">${L.ic} ${esc(L.ten)}</span><b>${esc(t.tieuDe)}</b><span class="small muted">${esc(t.mon||'')}${t.khoi?' · Lớp '+esc(t.khoi):''} · 👁 ${+t.luotXem||0}</span></div></div>`}
 function pgThuVienSo(){const cnt={};P.TaiNguyen.forEach(t=>cnt[t.loai]=(cnt[t.loai]||0)+1);
   const mons=[...new Set(P.TaiNguyen.map(t=>t.mon).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'));
@@ -1046,16 +1049,19 @@ function fillTN(){const cnt={};S.TaiNguyen.forEach(t=>cnt[t.loai]=(cnt[t.loai]||
    <td class="c" style="white-space:nowrap"><button class="btn sm" onclick="A.editTN('${esc(t.id)}')">✏️</button> <button class="btn sm dan" onclick="A.xoaTN('${esc(t.id)}')">🗑</button></td></tr>`}).join('')||'<tr><td colspan=8 class="empty">Chưa có tài nguyên số</td></tr>'}</table></div>${pager(list.length,TN,'tnPage')}`}
 function tnPage(n){TN.page=n;fillTN()}
 A.editTN=function(id){const t=id?S.TaiNguyen.find(x=>x.id===id):{loai:TN.loai||'ebook',mon:TN.mon,hien:'1'};
-  modal(id?'Sửa tài nguyên số':'Thêm tài nguyên số',`<div class="fgrid">${fld('Loại tài nguyên','loai',t.loai,{type:'select',options:LOAI_TN.map(x=>[x[0],x[2]+' '+x[1]])})}${fld('Môn học','mon',t.mon||'',{type:'select',options:[['','—'],...MONS.map(m=>[m,m])]})}
+  const m=modal(id?'Sửa tài nguyên số':'Thêm tài nguyên số',`<div class="fgrid">${fld('Loại tài nguyên','loai',t.loai,{type:'select',options:LOAI_TN.map(x=>[x[0],x[2]+' '+x[1]])})}${fld('Môn học','mon',t.mon||'',{type:'select',options:[['','—'],...MONS.map(m=>[m,m])]})}
    ${fld('Tên tài nguyên','tieuDe',t.tieuDe,{req:1,cls:'full'})}
    ${fld('Liên kết nội dung','link',t.link,{cls:'full',ph:'https://…',hint:'Dán link YouTube, Google Drive (chia sẻ "Bất kỳ ai có đường liên kết"), Google Docs/Slides/Forms, file PDF/MP3/MP4 hoặc trang web (PhET, Quizlet…)'})}
-   ${fld('Link ảnh đại diện','anh',t.anh,{ph:'Để trống: video YouTube tự lấy ảnh'})}${fld('Khối lớp','khoi',t.khoi||'',{type:'select',options:[['','—'],['6','Lớp 6'],['7','Lớp 7'],['8','Lớp 8'],['9','Lớp 9']]})}
+   ${tnUploadHTML(t)}${fld('Link ảnh đại diện','anh',t.anh,{ph:'Để trống: video YouTube tự lấy ảnh'})}${fld('Khối lớp','khoi',t.khoi||'',{type:'select',options:[['','—'],['6','Lớp 6'],['7','Lớp 7'],['8','Lớp 8'],['9','Lớp 9']]})}
    ${fld('Chủ đề / Bộ sưu tập','chuDe',t.chuDe)}${fld('Tác giả / Nguồn','tacGia',t.tacGia)}
    ${fld('Mô tả','moTa',t.moTa,{type:'textarea',cls:'full'})}${fld('','noiBat',t.noiBat==='1',{type:'check',text:'Nổi bật (hiện ở trang chủ)'})}${fld('','hien',t.hien!=='0',{type:'check',text:'Hiển thị công khai'})}</div>`,
    {wide:1,onOk:async el=>{const v=vals(el);if(!v.tieuDe)throw new Error('Nhập tên tài nguyên');v.hien=v.hien?'1':'0';
-    const row={...v,id:id||uid('TN'),luotXem:t.luotXem||'0',ngayTao:t.ngayTao||today()};if(!await commit([{t:'upsert',table:'TaiNguyen',rows:[row]}],'Đã lưu tài nguyên'))return false;fillTN()}})};
+    if(!v.link&&!v.fileId)throw new Error('Dán liên kết hoặc tải file lên');if(!v.fileId)v.quyen='';
+    if(v.fileId&&t.fileId===v.fileId&&(t.quyen||'ban-doc')!==v.quyen&&!DEMO()){const j=await BE().post({action:'setQuyen',pass:PASS,fileId:v.fileId,quyen:v.quyen});if(!j.ok)throw new Error(j.error)}
+    if(t.fileId&&t.fileId!==v.fileId&&!DEMO())BE().post({action:'xoaFile',pass:PASS,fileId:t.fileId}).catch(()=>{});
+    const row={...v,id:id||uid('TN'),luotXem:t.luotXem||'0',ngayTao:t.ngayTao||today()};if(!await commit([{t:'upsert',table:'TaiNguyen',rows:[row]}],'Đã lưu tài nguyên'))return false;fillTN()}});tnUploadBind(m)};
 A.hienTN=async(id,on)=>{await commit([{t:'upsert',table:'TaiNguyen',rows:[{id,hien:on?'1':'0'}]}],on?'Đã hiển thị':'Đã ẩn')};
-A.xoaTN=async id=>{const t=S.TaiNguyen.find(x=>x.id===id);if(!await ask(`Xóa tài nguyên <b>${esc(t.tieuDe)}</b>?`,'Xóa'))return;if(await commit([{t:'remove',table:'TaiNguyen',keys:[id]}],'Đã xóa'))fillTN()};
+A.xoaTN=async id=>{const t=S.TaiNguyen.find(x=>x.id===id);if(!await ask(`Xóa tài nguyên <b>${esc(t.tieuDe)}</b>?${t.fileId?'<br><span class="small">File trên Google Drive sẽ được chuyển vào Thùng rác (khôi phục được trong 30 ngày).</span>':''}`,'Xóa'))return;if(await commit([{t:'remove',table:'TaiNguyen',keys:[id]}],'Đã xóa')){if(t.fileId&&!DEMO())BE().post({action:'xoaFile',pass:PASS,fileId:t.fileId}).catch(()=>{});fillTN()}};
 const TN_COLS={tieuDe:['tentainguyen','ten','tieude','tenbai'],loai:['loai','loaitainguyen','dang'],link:['link','lienket','url','duongdan'],anh:['anh','anhdaidien','linkanh'],mon:['mon','monhoc'],khoi:['khoi','khoilop','lop'],chuDe:['chude','bosuutap'],tacGia:['tacgia','nguon'],moTa:['mota','ghichu']};
 A.mauTN=()=>exportXlsx('Mau_nhap_tai_nguyen_so',{'Tài nguyên số':[{'Tên tài nguyên':'Bài 1 – Lịch sử máy tính','Loại':'Video','Link':'https://www.youtube.com/watch?v=...','Ảnh':'','Môn':'Tin học','Khối':8,'Chủ đề':'Chủ đề 1','Tác giả':'','Mô tả':''},{'Tên tài nguyên':'SGK Tin học 8 (bản điện tử)','Loại':'Ebook','Link':'https://hanhtrangso.nxbgd.vn/','Ảnh':'','Môn':'Tin học','Khối':8,'Chủ đề':'','Tác giả':'NXB Giáo dục Việt Nam','Mô tả':''}]});
 A.nhapTN=async function(){const rows=await pickFileRows();if(!rows)return;const t=today();
@@ -2081,7 +2087,7 @@ async function localExtra(db,req,who){
   return null}
 
 /* ---------- Trạng thái kết nối (mục 4: "nhập sách mà Google Sheets không thấy") ---------- */
-const SERVER_VER='11';
+const SERVER_VER='12';
 function connBadge(){if(DEMO())return`<a class="conn bad" href="#/admin/thiet-lap" title="Dữ liệu chỉ lưu trên trình duyệt này, KHÔNG lưu lên Google Sheets">⚠ Dùng thử<span class="cl"> – chưa lưu lên Google Sheets</span></a>`;
   return`<button class="conn ok" onclick="A.kiemTraKN()" title="Bấm để kiểm tra kết nối">☁<span class="cl"> Google Sheets${CONN.ten?' · '+esc(CONN.ten):''}</span></button>`}
 const CONN={ten:'',ver:'',checked:false};
@@ -2959,6 +2965,52 @@ A.napSoTKBD=async function(aoaIn){const aoa=aoaIn||await new Promise(res=>{const
       x.hs.forEach(([k,n])=>rows.push({id:uid('LD'),ngay:x.d,doiTuong:'KXD',soLuot:'0',loaiSach:k,soSach:String(n),ghiChu:'',nguoiGhi:'socu'}));x.gv.forEach(([k,n])=>rows.push({id:uid('LD'),ngay:x.d,doiTuong:'GV',soLuot:'0',loaiSach:k,soSach:String(n),ghiChu:'',nguoiGhi:'socu'}))});
     if(!rows.length)throw new Error('Không có ngày mới để nạp');const ops=[{t:'upsert',table:'LuotDoc',rows}];const nn={...ngayNghiMap()};let nk=0;Object.entries(L.notes||{}).forEach(([d,t])=>{if(!nn[d]){nn[d]=t;nk++}});if(nk)ops.push({t:'upsert',table:'CaiDat',rows:[{key:'ngayNghi',value:JSON.stringify(nn)}]});
     if(!await commit(ops,`Đã nạp ${moi.length} ngày${nk?`, ${nk} ghi chú ngày nghỉ`:''}`))return false;rerender()}})};
+
+/* ================== PHẦN 19: TẢI SÁCH SỐ / PDF LÊN GOOGLE DRIVE, ĐỌC TRỰC TUYẾN CÓ PHÂN QUYỀN ================== */
+const QUYEN_TN=[['ban-doc','🔒 Chỉ bạn đọc đã đăng nhập (mã bạn đọc + mật khẩu) – nên chọn cho sách mua bản quyền'],['cong-khai','🌐 Công khai – ai vào trang web cũng đọc được']];
+function kb(n){n=+n||0;return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+function docB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=()=>rej(new Error('Không đọc được file'));r.readAsDataURL(file)})}
+function tnUploadHTML(t){return`<div class="fl full tnup"><label>📤 Hoặc tải file lên Google Drive của thư viện (PDF, EPUB, Word, PowerPoint, MP3… tối đa 25 MB)</label>
+   <div class="fr"><input type="file" id="tnFile" accept=".pdf,.epub,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.mp3,.mp4,.m4a,.zip"><button type="button" class="btn or" id="tnUpB">📤 Tải lên</button></div>
+   <div id="tnUpS" class="small" style="margin-top:4px">${t.fileId?`✔ Đã có file: <b>${esc(t.tenFile||'')}</b> (${kb(t.kichThuoc)}) – tải file khác để thay thế`:''}</div>
+   <input type="hidden" name="fileId" value="${esc(t.fileId||'')}"><input type="hidden" name="tenFile" value="${esc(t.tenFile||'')}"><input type="hidden" name="kichThuoc" value="${esc(t.kichThuoc||'')}"></div>
+   ${fld('Ai được đọc file này','quyen',t.quyen||'ban-doc',{type:'select',cls:'full',options:QUYEN_TN,hint:'Sách số đã mua thường chỉ được phép cho bạn đọc của trường dùng – không nên để công khai.'})}`}
+function tnUploadBind(m){const b=$('#tnUpB',m.root);if(!b)return;b.onclick=async()=>{const f=$('#tnFile',m.root).files[0];if(!f)return toast('Chọn file trước','err');
+  if(DEMO())return toast('Tải file lên cần kết nối Google Sheets (máy chủ Apps Script). Ở chế độ dùng thử hãy dán link.','err');
+  if(f.size>25*1048576)return toast('File lớn hơn 25 MB. Hãy nén PDF hoặc tự tải lên Google Drive rồi dán link.','err');
+  const st=$('#tnUpS',m.root);st.innerHTML=`⏳ Đang tải lên <b>${esc(f.name)}</b> (${kb(f.size)})… có thể mất 1–2 phút, đừng đóng cửa sổ.`;b.disabled=true;busy(true);
+  try{const data=await docB64(f);const j=await BE().post({action:'upload',pass:PASS,name:f.name,mime:f.type||'application/pdf',data,quyen:$('[name=quyen]',m.root).value});if(!j.ok||!j.fileId)throw new Error(j.error||'Tải lên thất bại');
+    $('[name=fileId]',m.root).value=j.fileId;$('[name=tenFile]',m.root).value=j.name;$('[name=kichThuoc]',m.root).value=j.size;$('[name=link]',m.root).value=j.url;
+    const td=$('[name=tieuDe]',m.root);if(td&&!td.value.trim())td.value=f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ');
+    st.innerHTML=`✔ Đã tải lên: <b>${esc(j.name)}</b> (${kb(j.size)}). Bấm <b>Lưu</b> để hoàn tất.`}
+  catch(e){st.innerHTML=`<span style="color:var(--rd)">✖ ${esc(e.message)}</span>`}finally{b.disabled=false;busy(false)}}}
+/* Trình đọc PDF (PDF.js) – hiện từng trang thành ảnh, dùng tốt trên điện thoại */
+let PDFJS=null;function loadPdfJs(){if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);if(PDFJS)return PDFJS;
+  PDFJS=loadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js').then(()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';return pdfjsLib});return PDFJS}
+async function xemPDF(title,b64){const m=modal('📖 '+esc(title),`<div class="pdfv" id="pdfV"><div class="muted" style="padding:20px;text-align:center">Đang mở tài liệu…</div></div>`,{wide:1,noOk:true,cancel:'Đóng',noFocus:true});
+  let lib=null;try{lib=await loadPdfJs()}catch(e){}
+  if(!lib){const bin=atob(b64);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'}));$('#pdfV',m.root).innerHTML=`<iframe src="${url}#toolbar=0" style="width:100%;height:72vh;border:0;background:#fff"></iframe>`;return}
+  try{const bin=atob(b64);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const doc=await lib.getDocument({data:u8}).promise;
+    const box=$('#pdfV',m.root);box.innerHTML=`<div class="small muted" style="margin-bottom:6px">${doc.numPages} trang</div>`;box.oncontextmenu=e=>e.preventDefault();
+    const w=Math.min(box.clientWidth||800,900);const io=new IntersectionObserver(async es=>{for(const e of es){if(!e.isIntersecting||e.target.dataset.ok)continue;e.target.dataset.ok=1;const p=await doc.getPage(+e.target.dataset.p);const v0=p.getViewport({scale:1});const sc=(w/v0.width)*(window.devicePixelRatio||1);const v=p.getViewport({scale:sc});
+      const c=document.createElement('canvas');c.width=v.width;c.height=v.height;c.style.width='100%';e.target.innerHTML='';e.target.appendChild(c);await p.render({canvasContext:c.getContext('2d'),viewport:v}).promise}},{root:box,rootMargin:'600px'});
+    for(let i=1;i<=doc.numPages;i++){const d=document.createElement('div');d.className='pg';d.dataset.p=i;d.style.minHeight=Math.round(w*1.35)+'px';d.innerHTML=`<span class="muted small">Trang ${i}</span>`;box.appendChild(d);io.observe(d)}}
+  catch(e){$('#pdfV',m.root).innerHTML=`<div style="color:var(--rd);padding:16px">Không mở được tài liệu: ${esc(e.message)}</div>`}}
+function moFileB64(title,j){if(/pdf/i.test(j.mime)||/\.pdf$/i.test(j.name))return xemPDF(title,j.data);
+  const bin=atob(j.data);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);const url=URL.createObjectURL(new Blob([u8],{type:j.mime}));
+  if(/audio|video/.test(j.mime))return modal('🎧 '+esc(title),`<${/video/.test(j.mime)?'video':'audio'} controls controlsList="nodownload" src="${url}" style="width:100%"></${/video/.test(j.mime)?'video':'audio'}>`,{wide:1,noOk:true,cancel:'Đóng'});
+  const a=document.createElement('a');a.href=url;a.download=j.name;a.click()}
+/* Bạn đọc mở tài liệu được bảo vệ */
+async function moTNBaoVe(t){const go=async()=>{busy(true);try{const j=await readerCall({sub:'tnFile',ma:RD.ma,pin:RD.pin,id:t.id});await moFileB64(t.tieuDe,j);viewInc(t.id)}catch(e){toast(e.message,'err');if(/mật khẩu/i.test(e.message)){RD.ma=RD.pin='';SS.del('tv_rdma');SS.del('tv_rdpin')}}finally{busy(false)}};
+  if(DEMO())return toast('Chế độ dùng thử chưa có máy chủ lưu file','err');
+  if(RD.ma&&RD.pin)return go();
+  modal('🔒 Tài liệu dành cho bạn đọc',`<p style="margin-top:0"><b>${esc(t.tieuDe)}</b> là tài liệu bản quyền của thư viện, chỉ dành cho bạn đọc của trường. Đăng nhập bằng <b>mã bạn đọc</b> và <b>mật khẩu</b> (xem phiếu tài khoản thư viện phát cho em; chưa có thì hỏi cán bộ thư viện).</p>
+   <div class="fgrid">${fld('Mã bạn đọc','ma','',{attr:'autocapitalize="characters"'})}${fld('Mật khẩu','pin','',{type:'password'})}</div>`,
+   {ok:'Đăng nhập & đọc',onOk:async el=>{const v=vals(el);if(!v.ma.trim()||!v.pin.trim())throw new Error('Nhập mã bạn đọc và mật khẩu');RD.ma=v.ma.trim();RD.pin=v.pin.trim();SS.set('tv_rdma',RD.ma);SS.set('tv_rdpin',RD.pin);setTimeout(go,50)}})}
+const _openTN=openTN;
+openTN=function(id){const src=S||P;const t=src&&src.TaiNguyen.find(x=>x.id===id);if(!t)return;
+  if(t.fileId&&t.quyen==='ban-doc'){if(S&&PASS)return(async()=>{busy(true);try{const j=await BE().post({action:'tnFileAd',pass:PASS,id});if(!j.ok)throw new Error(j.error);await moFileB64(t.tieuDe,j)}catch(e){toast(e.message,'err')}finally{busy(false)}})();return moTNBaoVe(t)}
+  return _openTN(id)};
 
 /* ---------- Excel ---------- */
 let XP=null;
