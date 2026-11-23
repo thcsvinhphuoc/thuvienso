@@ -336,6 +336,11 @@ table.t td.r,table.t th.r{text-align:right}
 .rbq{display:flex;gap:4px;align-items:center;border-left:1px solid var(--bd);padding-left:10px}.rbi.q span{font-size:20px}.rbinfo{font-size:11px;color:var(--mu);line-height:1.5;padding:0 6px;white-space:nowrap}
 .ad.rib .ct{max-width:1500px;margin:0 auto;width:100%}
 @media (max-width:640px){.rb{top:auto;position:relative}.rbi{min-width:68px}.rbi small{font-size:10.5px}.rbinfo{display:none}}
+.dql{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.dql button{border:1px solid var(--bd);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}.dql button.on{background:var(--ag);color:#fff;border-color:var(--ag)}
+.dqg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.dqb{display:flex;border:1.5px solid #86efac;border-radius:12px;overflow:hidden;background:#f0fdf4}.dqb.gv{border-color:#93c5fd;background:#eff6ff}
+.dqb .p{flex:1;border:0;background:transparent;padding:12px 10px;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;user-select:none;-webkit-tap-highlight-color:transparent}.dqb .p:active{background:#bbf7d0}.dqb.gv .p:active{background:#bfdbfe}
+.dqb .p b{font-size:14px}.dqb .p span{font-size:28px;font-weight:800;color:#166534;line-height:1.1}.dqb.gv .p span{color:#1d4ed8}.dqb .p small{color:var(--mu);font-size:11px}.dqb .m{border:0;border-left:1px solid #0000001a;background:#ffffff99;width:38px;font-size:20px;cursor:pointer;color:#64748b}
+.dqf{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}.dqn{display:flex;flex-direction:column;font-size:12px;gap:2px}.dqn .inp{padding:5px 8px}
 @media (max-width:1000px){
   .g32{grid-template-columns:1fr}
   .hgrid{grid-template-columns:1fr}.pgrid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(3,1fr)}
@@ -380,7 +385,7 @@ const today=()=>iso(new Date());
 const vn=s=>{if(!s)return'';const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);return m?`${m[3]}/${m[2]}/${m[1]}`:s};
 const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+Number(n||0));return iso(d)};
 const diffDays=(a,b)=>Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/864e5);
-const uid=p=>p+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+let _uidN=0;const uid=p=>p+Date.now().toString(36).toUpperCase()+(++_uidN).toString(36).toUpperCase().padStart(3,'0')+Math.random().toString(36).slice(2,6).toUpperCase(); /* có bộ đếm → không trùng mã khi tạo hàng loạt */
 const money=v=>v===''||v==null||isNaN(+v)?'':(+v).toLocaleString('vi-VN')+'đ';
 const clone=o=>JSON.parse(JSON.stringify(o));
 const debounce=(f,t=220)=>{let h;return(...a)=>{clearTimeout(h);h=setTimeout(()=>f(...a),t)}};
@@ -390,7 +395,7 @@ function toast(m,type){const d=document.createElement('div');d.className='ts '+(
 function busy(on){$('#busy').classList.toggle('on',!!on)}
 
 /* ---------------- Dữ liệu dùng chung ---------------- */
-const KEYS={NhatKy:'id',TietDoc:'id',DanhMuc:'id',Sach:'id',BanSach:'dkcb',BanDoc:'ma',MuonTra:'id',CaiDat:'key',BaiViet:'id',TaiNguyen:'id',HoiDap:'id',LienKet:'id',DanhGia:'id',MinhChung:'id',DatMuon:'id',KiemKe:'id',KiemKeCT:'id',ThanhLy:'id',TruyCap:'id',TaiKhoan:'id'};
+const KEYS={NhatKy:'id',TietDoc:'id',DanhMuc:'id',Sach:'id',BanSach:'dkcb',BanDoc:'ma',MuonTra:'id',CaiDat:'key',BaiViet:'id',TaiNguyen:'id',HoiDap:'id',LienKet:'id',DanhGia:'id',MinhChung:'id',DatMuon:'id',KiemKe:'id',KiemKeCT:'id',ThanhLy:'id',TruyCap:'id',TaiKhoan:'id',LuotDoc:'id'};
 const TABLES=Object.keys(KEYS);
 const TT=['Sẵn sàng','Đang mượn','Hỏng','Mất','Thanh lý'];
 const TTC={'Sẵn sàng':'t-ok','Đang mượn':'t-bo','Hỏng':'t-wa','Mất':'t-er','Thanh lý':'t-mu'};
@@ -559,14 +564,14 @@ function pgGioiThieu(){const c=getCfg();
 
 /* ================== QUẢN TRỊ ================== */
 const MENU=[['','📊','Tổng quan'],['so-tay','📖','Sổ tay nghiệp vụ'],['g','','Sách thư viện'],['sach','📚','Biên mục sách'],['dkcb','🏷️','Bản sách (ĐKCB)'],['muon-tra','🔄','Mượn – Trả sách'],['quet','📱','Quét bằng điện thoại'],['kiem-ke','📋','Kiểm kê sách'],['thanh-ly','🗑️','Thanh lý sách'],['tai-nguyen','💾','Tài nguyên số'],['g','','Bạn đọc'],['ban-doc','👥','Tài khoản bạn đọc'],['khen-thuong','🏆','Khen thưởng bạn đọc'],
- ['g','','Hồ sơ thư viện'],['tiet-doc','📖','Tiết đọc thư viện'],['danh-gia','✅','Đánh giá (TT16)'],['mau-in','🖨️','Mẫu in & sổ sách'],['minh-chung','📎','Minh chứng'],['g','','Quản lý site'],['bai-viet','📰','Tin tức – Bài viết'],['hoi-dap','❓','Hỏi đáp'],['lien-ket','🔗','Liên kết nhanh'],
+ ['g','','Hồ sơ thư viện'],['tiet-doc','📖','Đọc tại thư viện'],['danh-gia','✅','Đánh giá (TT16)'],['mau-in','🖨️','Mẫu in & sổ sách'],['minh-chung','📎','Minh chứng'],['g','','Quản lý site'],['bai-viet','📰','Tin tức – Bài viết'],['hoi-dap','❓','Hỏi đáp'],['lien-ket','🔗','Liên kết nhanh'],
  ['g','','Hệ thống'],['danh-muc','🗂️','Danh mục'],['thong-ke','📈','Báo cáo thống kê'],['tai-khoan','🔐','Tài khoản & phân quyền'],['thiet-lap','⚙️','Thiết lập']];
 async function routeAdmin(path){const sub=path.replace(/^\/admin\/?/,'');ensureApp();
   if(!PASS)return renderLogin();
   if(!S){try{await loadAdmin()}catch(e){if(e.auth){PASS='';SS.del('tv_pass');LS.del('tv_pass');clearWho();return renderLogin('Sai tên đăng nhập hoặc mật khẩu')}throw e}}
   setTimeout(autoPing,800);
   adShell(sub);
-  ({'':pgTongQuan,'sach':pgSach,'dkcb':pgDkcb,'muon-tra':pgMuonTra,'ban-doc':pgBanDoc,'danh-muc':pgDanhMuc,'thong-ke':pgThongKe,'thiet-lap':pgThietLap,'tai-nguyen':pgTaiNguyen,'bai-viet':pgBaiViet,'hoi-dap':pgHoiDapAd,'lien-ket':pgLienKet,'danh-gia':pgDanhGia,'mau-in':pgMauIn,'minh-chung':pgMinhChung,'kiem-ke':pgKiemKe,'thanh-ly':pgThanhLy,'so-tay':pgSoTay,'quet':pgQuet,'tiet-doc':pgTietDoc,'tai-khoan':pgTaiKhoan,'khen-thuong':pgKhenThuong}[sub]||pgTongQuan)();
+  ({'':pgTongQuan,'sach':pgSach,'dkcb':pgDkcb,'muon-tra':pgMuonTra,'ban-doc':pgBanDoc,'danh-muc':pgDanhMuc,'thong-ke':pgThongKe,'thiet-lap':pgThietLap,'tai-nguyen':pgTaiNguyen,'bai-viet':pgBaiViet,'hoi-dap':pgHoiDapAd,'lien-ket':pgLienKet,'danh-gia':pgDanhGia,'mau-in':pgMauIn,'minh-chung':pgMinhChung,'kiem-ke':pgKiemKe,'thanh-ly':pgThanhLy,'so-tay':pgSoTay,'quet':pgQuet,'tiet-doc':pgTietDocMoi,'tai-khoan':pgTaiKhoan,'khen-thuong':pgKhenThuong}[sub]||pgTongQuan)();
   window.scrollTo(0,0)}
 function renderLogin(err){$('#app').innerHTML=`${demoBar()}<div class="login"><form class="card" onsubmit="event.preventDefault();doLogin(this.p.value,this.nho.checked)">
   <div style="text-align:center;font-size:40px">📚</div><h2 style="text-align:center">Quản trị Thư viện</h2><p class="muted" style="text-align:center;margin-top:0">${esc(getCfg().tenTruong)}</p>
@@ -2076,7 +2081,7 @@ async function localExtra(db,req,who){
   return null}
 
 /* ---------- Trạng thái kết nối (mục 4: "nhập sách mà Google Sheets không thấy") ---------- */
-const SERVER_VER='10';
+const SERVER_VER='11';
 function connBadge(){if(DEMO())return`<a class="conn bad" href="#/admin/thiet-lap" title="Dữ liệu chỉ lưu trên trình duyệt này, KHÔNG lưu lên Google Sheets">⚠ Dùng thử<span class="cl"> – chưa lưu lên Google Sheets</span></a>`;
   return`<button class="conn ok" onclick="A.kiemTraKN()" title="Bấm để kiểm tra kết nối">☁<span class="cl"> Google Sheets${CONN.ten?' · '+esc(CONN.ten):''}</span></button>`}
 const CONN={ten:'',ver:'',checked:false};
@@ -2681,13 +2686,15 @@ function parseNgayNghi(txt){const o={};String(txt||'').split('\n').forEach(l=>{l
   const d1=`${m[3]}-${z2(m[2])}-${z2(m[1])}`,d2=m[4]?`${m[6]}-${z2(m[5])}-${z2(m[4])}`:d1;const nd=m[7].trim()||'Nghỉ';for(let d=d1;d<=d2&&d>='2000';d=addDays(d,1))o[d]=nd});return o}
 function ngayNghiText(o){const ks=Object.keys(o).sort();const out=[];let i=0;while(i<ks.length){let j=i;while(j+1<ks.length&&o[ks[j+1]]===o[ks[i]]&&addDays(ks[j],1)===ks[j+1])j++;out.push(vn(ks[i])+(j>i?' - '+vn(ks[j]):'')+' '+o[ks[i]]);i=j+1}return out.join('\n')}
 const TKBD_H=['K6','K7','K8','K9','KXD'],TKBD_LHS=['TK','TN','KHAC','SGK','BAO'],TKBD_LGV=['TK','NV','TN','KHAC','SGK','BAO'];
-function soTKBDData(y,tietDoc){const [a]=nhKhoang(y);const kb=nhKB(y)||{};const b=kb.ketThuc||(y+1)+'-05-31';const bm=mapBy(S.BanDoc,'ma'),sm=mapBy(S.Sach,'id'),dm=mapBy(S.DanhMuc,'id');const nn=ngayNghiMap();
-  const day={};const get=d=>day[d]||(day[d]={hs:{K6:new Set(),K7:new Set(),K8:new Set(),K9:new Set(),KXD:new Set()},hsT:{K6:0,K7:0,K8:0,K9:0,KXD:0},gv:new Set(),lhs:{},lgv:{}});
+function soTKBDData(y,tietDoc,opt={}){const [a]=nhKhoang(y);const kb=nhKB(y)||{};const b=kb.ketThuc||(y+1)+'-05-31';const bm=mapBy(S.BanDoc,'ma'),sm=mapBy(S.Sach,'id'),dm=mapBy(S.DanhMuc,'id');const nn=ngayNghiMap();
+  const day={};const get=d=>day[d]||(day[d]={hs:{K6:new Set(),K7:new Set(),K8:new Set(),K9:new Set(),KXD:new Set()},hsT:{K6:0,K7:0,K8:0,K9:0,KXD:0},gvT:0,gv:new Set(),lhs:{},lgv:{}});
   const khoi=l=>{const m=String(l||'').match(/^(\d+)/);return m&&+m[1]>=6&&+m[1]<=9?'K'+m[1]:'KXD'};
-  S.MuonTra.forEach(m=>{const d=m.ngayMuon;if(!d||d<a||d>b)return;const r=bm[m.maBanDoc]||{};const o=get(d);const ls=loaiSo((dm[(sm[m.sachId]||{}).danhMucId]||{}).ten);
+  if(opt.muon!==false)S.MuonTra.forEach(m=>{const d=m.ngayMuon;if(!d||d<a||d>b)return;const r=bm[m.maBanDoc]||{};const o=get(d);const ls=loaiSo((dm[(sm[m.sachId]||{}).danhMucId]||{}).ten);
     if(r.loai==='GV'){o.gv.add(m.maBanDoc);o.lgv[ls]=(o.lgv[ls]||0)+1}else{o.hs[khoi(m.lop||r.lop)].add(m.maBanDoc);const l2=ls==='NV'?'KHAC':ls;o.lhs[l2]=(o.lhs[l2]||0)+1}});
+  if(opt.taiCho!==false)S.LuotDoc.forEach(r=>{const d=r.ngay;if(!d||d<a||d>b)return;const o=get(d);const n=+r.soLuot||0;if(isGVdt(r.doiTuong))o.gvT+=n;else o.hsT[['K6','K7','K8','K9'].includes(r.doiTuong)?r.doiTuong:'KXD']+=n;
+    const ns=+r.soSach||0;if(r.loaiSach&&ns){if(isGVdt(r.doiTuong))o.lgv[r.loaiSach]=(o.lgv[r.loaiSach]||0)+ns;else{const l2=r.loaiSach==='NV'?'KHAC':r.loaiSach;o.lhs[l2]=(o.lhs[l2]||0)+ns}}});
   if(tietDoc)S.TietDoc.forEach(t=>{if(!t.ngay||t.ngay<a||t.ngay>b)return;get(t.ngay).hsT[khoi(t.lop)]+=(+t.soHS||0)});
-  const row=d=>{const o=day[d];if(!o)return null;const h=TKBD_H.map(k=>o.hs[k].size+o.hsT[k]);const th=h.reduce((x,y)=>x+y,0);return{h,th,gv:o.gv.size,tong:th+o.gv.size,lhs:TKBD_LHS.map(k=>o.lhs[k]||0),lgv:TKBD_LGV.map(k=>o.lgv[k]||0)}};
+  const row=d=>{const o=day[d];if(!o)return null;const h=TKBD_H.map(k=>o.hs[k].size+o.hsT[k]);const th=h.reduce((x,y)=>x+y,0);return{h,th,gv:o.gv.size+o.gvT,tong:th+o.gv.size+o.gvT,lhs:TKBD_LHS.map(k=>o.lhs[k]||0),lgv:TKBD_LGV.map(k=>o.lgv[k]||0)}};
   const months=[];let cur=a.slice(0,7);const endM=b.slice(0,7);
   while(cur<=endM){const [yy,mm]=cur.split('-').map(Number);const first=cur+'-01';const last=iso(new Date(yy,mm,0));const days=[];
     for(let d=first<a?a:first;d<=last&&d<=b;d=addDays(d,1)){const w=new Date(d+'T00:00:00').getDay();const r=row(d);if(w===0&&!r&&!nn[d])continue;days.push({d,r,nghi:nn[d]||''})}
@@ -2697,13 +2704,13 @@ function soTKBDData(y,tietDoc){const [a]=nhKhoang(y);const kb=nhKB(y)||{};const 
   return{y,a,b,months,nam}}
 const tkbdCells=(r,blank)=>{const f=v=>blank&&!v?'':v;return[...r.h.map(f),f(r.th),f(r.gv),f(r.tong),...r.lhs.map(f),...r.lgv.map(f)]};
 A.soThongKeBD=function(){const Ys=dsNamHoc();const ck=chuKy();
-  const m=modal('📊 Sổ thống kê bạn đọc',`<div class="fgrid">${fld('Năm học','y',String(namHocNay()),{type:'select',options:Ys.map(y=>[String(y),nhTen(y)])})}${fld('','td',false,{type:'check',text:'Cộng cả học sinh dự tiết đọc thư viện vào số lượt bạn đọc'})}
+  const m=modal('📊 Sổ thống kê bạn đọc',`<div class="fgrid">${fld('Năm học','y',String(namHocNay()),{type:'select',options:Ys.map(y=>[String(y),nhTen(y)])})}<div class="fl full">${fld('','tc',true,{type:'check',text:'Tính lượt đến đọc tại thư viện (giờ ra chơi, trống tiết – mục Đọc tại thư viện)'})}${fld('','muon',true,{type:'check',text:'Tính lượt mượn sách về nhà (mỗi người 1 lượt/ngày)'})}${fld('','td',false,{type:'check',text:'Cộng cả học sinh dự tiết đọc theo lớp'})}</div>
    ${fld('Người lập biểu','lap',ck.lap)}${fld('Hiệu trưởng','ht',ck.ht)}
    ${fld('Ngày nghỉ / ghi chú (mỗi dòng: ngày [- đến ngày] nội dung)','nn',ngayNghiText(ngayNghiMap()),{type:'textarea',rows:4,cls:'full',ph:'20/09/2025 Nghỉ lễ Sene Dolta\n26/01/2026 - 08/02/2026 Nghỉ Tết Nguyên đán'})}</div>
-   <p class="small muted">Số lượt bạn đọc = số người mượn sách trong ngày (mỗi người tính 1 lượt/ngày) theo khối lớp lúc mượn; số theo loại sách = số cuốn được mượn, phân loại theo tên danh mục (giáo khoa, tham khảo, thiếu nhi, nghiệp vụ, báo – tạp chí, khác). Chủ nhật không có hoạt động được bỏ qua.</p>
+   <p class="small muted">Số lượt bạn đọc = lượt đến đọc tại thư viện + số người mượn sách trong ngày (theo khối lớp lúc mượn); BGH tính vào cột Giáo viên; số theo loại sách = số cuốn được mượn, phân loại theo tên danh mục (giáo khoa, tham khảo, thiếu nhi, nghiệp vụ, báo – tạp chí, khác). Chủ nhật không có hoạt động được bỏ qua.</p>
    <div class="acts"><button type="button" class="btn pri" id="tkbIn">🖨 In sổ</button><button type="button" class="btn" id="tkbX">📤 Xuất Excel</button></div>`,{wide:1,noOk:true,cancel:'Đóng'});
   const go=async ex=>{const v=vals(m.root.querySelector('.mb'));await luuChuKy(v.lap.trim(),v.ht.trim());const nn=parseNgayNghi(v.nn);if(JSON.stringify(nn)!==JSON.stringify(ngayNghiMap()))await commit([{t:'upsert',table:'CaiDat',rows:[{key:'ngayNghi',value:JSON.stringify(nn)}]}],'');
-    const D=soTKBDData(+v.y,v.td);ex?xuatTKBD(D,v.lap,v.ht):inTKBD(D,v.lap,v.ht)};
+    const D=soTKBDData(+v.y,v.td,{muon:v.muon,taiCho:v.tc});ex?xuatTKBD(D,v.lap,v.ht):inTKBD(D,v.lap,v.ht)};
   $('#tkbIn',m.root).onclick=()=>go(false);$('#tkbX',m.root).onclick=()=>go(true)};
 function inTKBD(D,lap,ht){const c=getCfg();const head=`<thead><tr><th colspan="9">SỐ LƯỢT BẠN ĐỌC</th><th colspan="11">LOẠI SÁCH</th></tr>
    <tr><th rowspan="2" style="width:62px">Ngày</th><th colspan="6">Học sinh</th><th rowspan="2">Giáo viên</th><th rowspan="2">Tổng cộng</th><th colspan="5">Học sinh</th><th colspan="6">Giáo viên</th></tr>
@@ -2877,6 +2884,81 @@ A.xuatBienMuc=function(){const Ys=dsNamHoc();const dms=sortDM(S.DanhMuc);const d
     rows.forEach(L=>{const b=L[0],s=sm[b.sachId];const o=docGhiChuBM(b.ghiChu);const gia=b.donGia||s.gia||'';const pk=/cấp phát|tặng|phát/i.test(b.nguon||'');
       aoa.push([vn(b.ngayNhap),b.chungTu||'',s.tacGia||'',s.nhanDe,s.soPhanLoai||'',String(L.length),s.nxb==='Giáo dục Việt Nam'?'Giáo Dục':(s.nxb||''),o['Nơi XB']||'',b.namXB||s.namXB||'',pk?String(gia):'',pk?'':String(gia),o['Môn loại']||'',o['Số vào sổ']||'','','',o['Ghi chú']||'',o['NCC']||''])});
     await xuatAOA('Bienmuc_SGK_'+(v.y==='all'?'tat_ca':v.y),aoa.map(r=>r.map(x=>String(x??''))),[[0,6,0,8],[0,9,0,10],[0,11,2,11],[0,12,2,12],[0,13,2,13],[0,15,2,15]],[12,10,22,34,11,9,11,10,7,10,10,10,8,12,8,14,8])}})};
+
+/* ================== PHẦN 18: LƯỢT ĐỌC TẠI THƯ VIỆN (giờ ra chơi, trống tiết) – ghi theo khối / GV / BGH / loại sách ================== */
+/* Bảng LuotDoc: {id, ngay, doiTuong: K6|K7|K8|K9|KXD|GV|BGH, soLuot, loaiSach: TK|TN|NV|KHAC|SGK|BAO|'', soSach, ghiChu, nguoiGhi: nhanh|nhap|socu} */
+const DT_LIST=[['K6','Khối 6'],['K7','Khối 7'],['K8','Khối 8'],['K9','Khối 9'],['KXD','Không xác định'],['GV','Giáo viên'],['BGH','BGH']];
+const LS_LIST=[['','— Không ghi —'],['TK','Tham khảo'],['TN','Thiếu nhi'],['SGK','Giáo khoa'],['BAO','Báo, tạp chí'],['NV','Nghiệp vụ'],['KHAC','Sách khác']];
+const DTV={tab:'tc',loai:'',thang:'',ngay:''};const DQ={};let dqT=0;
+const isGVdt=d=>d==='GV'||d==='BGH';
+function ldNgay(d){const o={dt:{},hs:{},gv:{}};S.LuotDoc.forEach(r=>{if(r.ngay!==d)return;o.dt[r.doiTuong]=(o.dt[r.doiTuong]||0)+(+r.soLuot||0);if(r.loaiSach&&+r.soSach){const g=isGVdt(r.doiTuong)?o.gv:o.hs;g[r.loaiSach]=(g[r.loaiSach]||0)+(+r.soSach)}});return o}
+function pgTietDocMoi(){if(DTV.tab==='td'){pgTietDoc();$('#ct').insertAdjacentHTML('afterbegin',dtvTabs());return}
+  const t=today();if(!DTV.thang)DTV.thang=t.slice(0,7);if(!DTV.ngay)DTV.ngay=t;const o=ldNgay(t);const tong=Object.values(o.dt).reduce((a,b)=>a+b,0);
+  $('#ct').innerHTML=`${dtvTabs()}<div class="phd"><div><h2>Đọc tại thư viện</h2><p>Học sinh, giáo viên đến đọc giờ ra chơi, trống tiết – chỉ cần ghi theo khối, không cần lớp. Số liệu tự vào Sổ thống kê bạn đọc.</p></div>
+   <div class="acts"><button class="btn" onclick="A.soThongKeBD()">📊 Sổ thống kê bạn đọc</button>${isAdmin()?'<button class="btn" onclick="A.napSoTKBD()">📥 Nạp sổ thống kê cũ (Excel)</button>':''}</div></div>
+  <div class="card"><div class="fr" style="justify-content:space-between"><h3 style="margin:0">⚡ Ghi nhanh hôm nay ${vn(t)} <span class="tag t-ok" id="dqT">${tong} lượt</span></h3><span class="small muted">Mỗi lần bấm = 1 người đến đọc</span></div>
+   <div class="small" style="margin:10px 0 4px">Loại sách đang đọc (không bắt buộc):</div><div class="dql">${LS_LIST.map(l=>`<button class="${DTV.loai===l[0]?'on':''}" onclick="DTV.loai='${l[0]}';pgTietDocMoi()">${l[1]}</button>`).join('')}</div>
+   <div class="dqg">${DT_LIST.map(d=>`<div class="dqb ${isGVdt(d[0])?'gv':''}"><button class="p" onclick="A.dqCong('${d[0]}',1)"><b>${d[1]}</b><span id="dq_${d[0]}">${o.dt[d[0]]||0}</span><small>+1</small></button><button class="m" title="Bớt 1 (bấm nhầm)" onclick="A.dqCong('${d[0]}',-1)">−</button></div>`).join('')}</div></div>
+  <div class="g2 g32" style="margin-top:14px"><div class="card"><div class="fr" style="justify-content:space-between"><h3 style="margin:0">📅 Theo ngày</h3><input type="month" class="inp" style="width:auto" value="${DTV.thang}" onchange="DTV.thang=this.value;pgTietDocMoi()"></div><div id="dqTb" style="margin-top:8px"></div></div>
+   <div class="card"><h3>✍ Nhập / sửa số liệu một ngày</h3><p class="small muted" style="margin-top:-4px">Dùng khi ghi sổ tay rồi nhập lại, hoặc sửa số đã ghi. Bấm vào một ngày ở bảng bên trái để sửa.</p><div id="dqF"></div></div></div>`;
+  fillDQTb();fillDQF()}
+function dtvTabs(){return`<div class="tabs" style="margin-bottom:12px"><button class="${DTV.tab==='tc'?'on':''}" onclick="DTV.tab='tc';pgTietDocMoi()">📖 Đọc tại thư viện (ra chơi, trống tiết)</button><button class="${DTV.tab==='td'?'on':''}" onclick="DTV.tab='td';pgTietDocMoi()">🏫 Tiết đọc theo lớp (TT16)</button></div>`}
+/* Bấm nhanh: gộp các lần bấm trong 0,8 giây rồi mới lưu 1 lần */
+A.dqCong=(dt,d)=>{const t=today();const k=dt+'|'+DTV.loai;const cur=(ldNgay(t).dt[dt]||0)+Object.entries(DQ).filter(([x])=>x.startsWith(dt+'|')).reduce((a,[,v])=>a+v,0);if(d<0&&cur<=0)return;
+  DQ[k]=(DQ[k]||0)+d;const el=$('#dq_'+dt);if(el)el.textContent=cur+d;const tt=$('#dqT');if(tt)tt.textContent=(+tt.textContent.replace(/\D/g,'')+d)+' lượt';try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}
+  clearTimeout(dqT);dqT=setTimeout(dqFlush,800)};
+async function dqFlush(){const t=today();const ks=Object.keys(DQ).filter(k=>DQ[k]);if(!ks.length)return;const rows=[];const take={...DQ};ks.forEach(k=>delete DQ[k]);
+  for(const k of ks){const [dt,ls]=k.split('|');const n=take[k];let r=S.LuotDoc.find(x=>x.ngay===t&&x.doiTuong===dt&&(x.loaiSach||'')===ls&&x.nguoiGhi==='nhanh');
+    if(!r&&n<0){r=S.LuotDoc.filter(x=>x.ngay===t&&x.doiTuong===dt&&+x.soLuot>0).slice(-1)[0];if(!r)continue}
+    const sl=Math.max(0,(+((r||{}).soLuot)||0)+n);rows.push({id:r?r.id:uid('LD'),ngay:t,doiTuong:dt,soLuot:String(sl),loaiSach:r?r.loaiSach||'':ls,soSach:String((r?r.loaiSach:ls)?sl:0),ghiChu:'',nguoiGhi:r?r.nguoiGhi:'nhanh'})}
+  if(rows.length&&await commit([{t:'upsert',table:'LuotDoc',rows}],'')){if(location.hash.includes('tiet-doc')&&DTV.tab==='tc'){fillDQTb();if(DTV.ngay===t)fillDQF()}}}
+function fillDQTb(){const el=$('#dqTb');if(!el)return;const days=[...new Set(S.LuotDoc.filter(r=>String(r.ngay).startsWith(DTV.thang)).map(r=>r.ngay))].sort();
+  const tot={};el.innerHTML=days.length?`<div class="tw" style="max-height:420px"><table class="t"><tr><th>Ngày</th>${DT_LIST.map(d=>`<th class="c">${d[0]==='KXD'?'KXĐ':d[0].replace('K','K.')}</th>`).join('')}<th class="c">Tổng</th><th>Loại sách</th></tr>
+   ${days.map(d=>{const o=ldNgay(d);let s=0;const cells=DT_LIST.map(x=>{const v=o.dt[x[0]]||0;s+=v;tot[x[0]]=(tot[x[0]]||0)+v;return`<td class="c">${v||''}</td>`}).join('');tot._=(tot._||0)+s;
+     const ls=[...Object.entries(o.hs).map(([k,v])=>`HS ${(LS_LIST.find(l=>l[0]===k)||[])[1]}: ${v}`),...Object.entries(o.gv).map(([k,v])=>`GV ${(LS_LIST.find(l=>l[0]===k)||[])[1]}: ${v}`)].join(', ');
+     return`<tr style="cursor:pointer" onclick="DTV.ngay='${d}';fillDQF()"><td>${vn(d)}</td>${cells}<td class="c"><b>${s}</b></td><td class="small">${esc(ls)}</td></tr>`}).join('')}
+   <tr style="font-weight:700"><td>Cả tháng</td>${DT_LIST.map(x=>`<td class="c">${tot[x[0]]||''}</td>`).join('')}<td class="c">${tot._||0}</td><td></td></tr></table></div>`:'<div class="empty small">Chưa có số liệu tháng này</div>'}
+function fillDQF(){const el=$('#dqF');if(!el)return;const d=DTV.ngay;const o=ldNgay(d);const ls5=[['TK','Tham khảo'],['TN','Thiếu nhi'],['KHAC','Khác'],['SGK','Giáo khoa'],['BAO','Báo, tạp chí']],ls6=[['TK','Tham khảo'],['NV','Nghiệp vụ'],['TN','Thiếu nhi'],['KHAC','Khác'],['SGK','Giáo khoa'],['BAO','Báo, tạp chí']];
+  const num=(n,v,l)=>`<label class="dqn"><span>${l}</span><input type="number" min="0" class="inp" name="${n}" value="${v||''}"></label>`;
+  el.innerHTML=`<div class="fr">${fld('Ngày','ngay',d,{type:'date'})}</div><div class="small" style="margin:8px 0 4px"><b>Số lượt bạn đọc</b></div><div class="dqf">${DT_LIST.map(x=>num('d_'+x[0],o.dt[x[0]],x[1])).join('')}</div>
+   <div class="small" style="margin:8px 0 4px"><b>Loại sách – học sinh</b></div><div class="dqf">${ls5.map(x=>num('h_'+x[0],o.hs[x[0]],x[1])).join('')}</div>
+   <div class="small" style="margin:8px 0 4px"><b>Loại sách – giáo viên, BGH</b></div><div class="dqf">${ls6.map(x=>num('g_'+x[0],o.gv[x[0]],x[1])).join('')}</div>
+   <div class="acts" style="margin-top:10px"><button class="btn pri" onclick="A.luuDQ()">💾 Lưu ngày này</button></div>`;
+  $('[name=ngay]',el).onchange=e=>{DTV.ngay=e.target.value;fillDQF()}}
+/* Lưu một ngày: thay toàn bộ số liệu của ngày đó bằng số trong ô */
+A.luuDQ=async()=>{const el=$('#dqF');const v=vals(el);const d=v.ngay;if(!d)return toast('Chọn ngày','err');const rows=[];const n=x=>Math.max(0,parseInt(x)||0);
+  DT_LIST.forEach(x=>{if(n(v['d_'+x[0]]))rows.push({id:uid('LD'),ngay:d,doiTuong:x[0],soLuot:String(n(v['d_'+x[0]])),loaiSach:'',soSach:'0',ghiChu:'',nguoiGhi:'nhap'})});
+  ['TK','TN','KHAC','SGK','BAO'].forEach(k=>{if(n(v['h_'+k]))rows.push({id:uid('LD'),ngay:d,doiTuong:'KXD',soLuot:'0',loaiSach:k,soSach:String(n(v['h_'+k])),ghiChu:'',nguoiGhi:'nhap'})});
+  ['TK','NV','TN','KHAC','SGK','BAO'].forEach(k=>{if(n(v['g_'+k]))rows.push({id:uid('LD'),ngay:d,doiTuong:'GV',soLuot:'0',loaiSach:k,soSach:String(n(v['g_'+k])),ghiChu:'',nguoiGhi:'nhap'})});
+  const old=S.LuotDoc.filter(r=>r.ngay===d).map(r=>r.id);const ops=[];if(old.length)ops.push({t:'remove',table:'LuotDoc',keys:old});if(rows.length)ops.push({t:'upsert',table:'LuotDoc',rows});if(!ops.length)return toast('Không có gì để lưu');
+  if(await commit(ops,'Đã lưu số liệu ngày '+vn(d))){DTV.thang=d.slice(0,7);pgTietDocMoi()}};
+
+/* Nạp số liệu từ Sổ thống kê bạn đọc cũ (file Excel của trường) */
+function parseSoTKBD(aoa){const s=v=>String(v??'').trim();const hr=aoa.findIndex(r=>r.some(c=>/Kh[ốo]i 6/i.test(s(c))));if(hr<0)return null;const out=[];const notes={};
+  const num=v=>Math.max(0,parseInt(s(v).replace(/[^\d]/g,''))||0);let cy=0,cm=0,LASTM=0;
+  const full=v=>{if(v instanceof Date&&!isNaN(v))return iso(new Date(v.getTime()+12*36e5));v=s(v);let m=v.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return`${m[3]}-${z2(m[2])}-${z2(m[1])}`;if(/^\d{5}(\.\d+)?$/.test(v))return iso(new Date(Math.round((+v-25569)*864e5)+12*36e5));return''};
+  for(let r=hr+1;r<aoa.length;r++){const row=aoa[r]||[];const a0=s(row[0]);if(/^Nh[ậa]n th[ựu]c/i.test(a0))break;
+    const mh=a0.match(/^th[áa]ng\s*(\d{1,2})(?:\s*\/\s*(\d{4}))?/i);if(mh){cm=+mh[1];if(mh[2])cy=+mh[2];else if(cy&&cm<9&&LASTM>=9)cy++;LASTM=cm;continue}
+    let d=full(row[0]);if(d){cy=+d.slice(0,4);cm=+d.slice(5,7);LASTM=cm}
+    else if(/^\d{1,2}$/.test(a0)&&cm){let y=cy;if(!y)continue;d=`${y}-${z2(cm)}-${z2(a0)}`;if(isNaN(new Date(d+'T00:00:00')))continue}
+    else continue;
+    const b0=s(row[1]);if(b0&&!/^\d+$/.test(b0)){notes[d]=b0;continue}
+    const dt=[['K6',1],['K7',2],['K8',3],['K9',4],['KXD',5],['GV',7]].map(([k,c])=>[k,num(row[c])]).filter(x=>x[1]);
+    const hs=[['TK',9],['TN',10],['KHAC',11],['SGK',12],['BAO',13]].map(([k,c])=>[k,num(row[c])]).filter(x=>x[1]);const gv=[['TK',14],['NV',15],['TN',16],['KHAC',17],['SGK',18],['BAO',19]].map(([k,c])=>[k,num(row[c])]).filter(x=>x[1]);
+    const tongI=num(row[8]);const sum=dt.reduce((a,x)=>a+x[1],0);if(!dt.length&&tongI)dt.push(['KXD',tongI]);
+    if(dt.length||hs.length||gv.length)out.push({d,dt,hs,gv,sum:sum||tongI})}
+  /* năm của các tháng 1–8 khi tiêu đề chỉ ghi "tháng 1": tăng năm khi tháng nhỏ hơn tháng trước */
+  out.notes=notes;return out}
+A.napSoTKBD=async function(aoaIn){const aoa=aoaIn||await new Promise(res=>{const inp=document.createElement('input');inp.type='file';inp.accept='.xls,.xlsx';inp.onchange=async()=>{const f=inp.files[0];if(!f)return res(null);busy(true);
+   try{const X=await loadXLSX();const wb=X.read(await f.arrayBuffer(),{cellDates:true});res(X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''}))}catch(e){toast('Không đọc được file: '+e.message,'err');res(null)}finally{busy(false)}};inp.click()});
+  if(!aoa)return;const L=parseSoTKBD(aoa);if(!L||!L.length)return toast('Không nhận ra mẫu Sổ thống kê bạn đọc trong file','err');
+  const co=new Set(S.LuotDoc.map(r=>r.ngay));const moi=L.filter(x=>!co.has(x.d)),trung=L.length-moi.length;const tong=moi.reduce((a,x)=>a+x.sum,0);
+  modal('📥 Nạp sổ thống kê bạn đọc cũ',`<p style="margin-top:0">Đọc được <b>${L.length}</b> ngày có số liệu (${vn(L[0].d)} → ${vn(L[L.length-1].d)}), tổng <b>${tong}</b> lượt bạn đọc.${trung?` <b>${trung}</b> ngày đã có số liệu trên web sẽ được giữ nguyên (bỏ qua).`:''}</p>
+   <p class="small muted">Số liệu được lưu như lượt đọc tại thư viện theo khối / giáo viên / loại sách → Sổ thống kê bạn đọc năm học đó in ra đúng như sổ tay, và tiếp tục ghi thêm trên web.</p>`,
+   {ok:`Nạp ${moi.length} ngày`,onOk:async()=>{const rows=[];moi.forEach(x=>{x.dt.forEach(([k,n])=>rows.push({id:uid('LD'),ngay:x.d,doiTuong:k,soLuot:String(n),loaiSach:'',soSach:'0',ghiChu:'',nguoiGhi:'socu'}));
+      x.hs.forEach(([k,n])=>rows.push({id:uid('LD'),ngay:x.d,doiTuong:'KXD',soLuot:'0',loaiSach:k,soSach:String(n),ghiChu:'',nguoiGhi:'socu'}));x.gv.forEach(([k,n])=>rows.push({id:uid('LD'),ngay:x.d,doiTuong:'GV',soLuot:'0',loaiSach:k,soSach:String(n),ghiChu:'',nguoiGhi:'socu'}))});
+    if(!rows.length)throw new Error('Không có ngày mới để nạp');const ops=[{t:'upsert',table:'LuotDoc',rows}];const nn={...ngayNghiMap()};let nk=0;Object.entries(L.notes||{}).forEach(([d,t])=>{if(!nn[d]){nn[d]=t;nk++}});if(nk)ops.push({t:'upsert',table:'CaiDat',rows:[{key:'ngayNghi',value:JSON.stringify(nn)}]});
+    if(!await commit(ops,`Đã nạp ${moi.length} ngày${nk?`, ${nk} ghi chú ngày nghỉ`:''}`))return false;rerender()}})};
 
 /* ---------- Excel ---------- */
 let XP=null;
