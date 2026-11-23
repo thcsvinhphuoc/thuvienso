@@ -611,7 +611,7 @@ function pgTongQuan(){const t=today(),c=getCfg();const sm=mapBy(S.Sach,'id'),bm=
 const BS={q:'',by:'all',dm:'',sort:'new',page:1,size:20};
 const A={};
 function pgSach(){$('#ct').innerHTML=`<div class="phd"><div><h2>Biên mục sách</h2><p>Quản lý đầu sách và bản sách (số ĐKCB) trong thư viện</p></div><div class="acts">
-  <button class="btn" onclick="A.mauSach()">⬇ File mẫu</button><button class="btn" onclick="A.nhapSach()">📥 Nhập từ Excel</button><button class="btn" onclick="A.nhapBoSGK()">📚 Nhập bộ SGK</button><button class="btn" onclick="A.boSach()">⚙ Bộ sách</button>${nhomTrung().length?`<button class="btn" style="border-color:#f59e0b" onclick="A.gopSach()">🧩 Gộp ${nhomTrung().length} sách trùng</button>`:''}<button class="btn" onclick="A.xuatSach()">📤 Xuất Excel</button><button class="btn pri" onclick="A.editSach()">＋ Thêm sách mới</button></div></div>
+  <button class="btn" onclick="A.mauSach()">⬇ File mẫu</button><button class="btn" onclick="A.nhapSach()">📥 Nhập từ Excel</button><button class="btn" onclick="A.nhapBienMuc()" title="File biên mục SGK theo mẫu của trường (Ngày vào sổ, Chứng từ, Tác giả, Tên sách, Ký hiệu PL, Số lượng…)">📥 Nhập biên mục SGK</button><button class="btn" onclick="A.xuatBienMuc()">📤 Xuất biên mục SGK</button><button class="btn" onclick="A.nhapBoSGK()">📚 Nhập bộ SGK</button><button class="btn" onclick="A.boSach()">⚙ Bộ sách</button>${nhomTrung().length?`<button class="btn" style="border-color:#f59e0b" onclick="A.gopSach()">🧩 Gộp ${nhomTrung().length} sách trùng</button>`:''}<button class="btn" onclick="A.xuatSach()">📤 Xuất Excel</button><button class="btn pri" onclick="A.editSach()">＋ Thêm sách mới</button></div></div>
   <div class="card filt"><div class="fr"><div class="fl grow"><label>Tìm kiếm</label><input class="inp" id="bsQ" placeholder="Nhập từ khóa…" value="${esc(BS.q)}"></div>
   ${fld('Tìm theo','bsBy',BS.by,{type:'select',options:BY_OPTS,attr:'id="bsBy"'})}
   ${fld('Sắp xếp','bsSort',BS.sort,{type:'select',options:[['new','Mới thêm trước'],['old','Cũ trước'],['az','Nhan đề A→Z'],['za','Nhan đề Z→A'],['nhieu','Nhiều bản nhất']],attr:'id="bsSort"'})}
@@ -2737,7 +2737,7 @@ A.soDangKySGK=function(){const ck=chuKy();const dms=sortDM(S.DanhMuc);const def=
    ${fld('Người lập biểu','lap',ck.lap)}${fld('Hiệu trưởng','ht',ck.ht)}
    <div class="fl full"><label>Danh mục tính là sách giáo khoa</label><div class="acts">${dms.map(d=>`<label class="chk"><input type="checkbox" data-dm="${esc(d.id)}" ${def.has(d.id)?'checked':''}> ${esc(d.ten)}</label>`).join('')}</div></div></div>
    <p class="small muted">Mỗi đầu sách liệt kê theo năm học nhập kho: số chứng từ, năm xuất bản, số bản, đơn giá, thành tiền; cột Mất/Còn tính từ bản sách bị mất / thanh lý. Sổ cũ trên giấy/Excel có thể nạp vào bằng nút “Nạp sổ cũ”.</p>
-   <div class="acts"><button type="button" class="btn pri" id="sgIn">🖨 In sổ</button><button type="button" class="btn" id="sgX">📤 Xuất Excel</button><button type="button" class="btn or" id="sgNap">📥 Nạp sổ đăng ký SGK cũ (Excel)</button></div>`,{wide:1,noOk:true,cancel:'Đóng'});
+   <div class="acts"><button type="button" class="btn pri" id="sgIn">🖨 In sổ</button><button type="button" class="btn" id="sgX">📤 Xuất Excel</button><button type="button" class="btn or" id="sgNap">📥 Nạp sổ đăng ký SGK cũ (Excel)</button><button type="button" class="btn" onclick="document.querySelectorAll('.mo').forEach(x=>x.remove());A.nhapBienMuc()">📥 Nhập biên mục SGK (Excel)</button></div>`,{wide:1,noOk:true,cancel:'Đóng'});
   const go=async ex=>{const v=vals(m.root.querySelector('.mb'));await luuChuKy(v.lap.trim(),v.ht.trim());const ids=$$('[data-dm]:checked',m.root).map(x=>x.dataset.dm);if(!ids.length)return toast('Chọn ít nhất một danh mục','err');
     const D=soSGKData(+v.y,ids);if(!D.G.length)return toast('Chưa có đầu sách nào trong các danh mục đã chọn','err');ex?xuatSGK(D,v.lap,v.ht):inSGK(D,v.lap,v.ht)};
   $('#sgIn',m.root).onclick=()=>go(false);$('#sgX',m.root).onclick=()=>go(true);$('#sgNap',m.root).onclick=()=>{m.close();A.napSoSGK()}};
@@ -2818,6 +2818,65 @@ function adShell(sub){const sh=$('#adShell');
   $$('#adShell [data-sub]').forEach(a=>a.classList.toggle('on',a.dataset.sub===sub));const sb=$('#sb');if(sb)sb.classList.remove('open')}
 function bindShell(){const rb=$('#rb');if(rb)rb.addEventListener('click',e=>{const t=e.target.closest('[data-g]');if(!t)return;RB.grp=t.dataset.g;const sub=location.hash.replace(/^#\/admin\/?/,'').split('?')[0];rb.innerHTML=ribbonHTML(sub)})}
 A.doiGiaoDien=()=>{RB.mode=RB.mode==='ribbon'?'sidebar':'ribbon';LS.set('tv_layout',RB.mode);route()};
+
+/* ================== PHẦN 17: NHẬP / XUẤT BIÊN MỤC SGK THEO MẪU CỦA TRƯỜNG ================== */
+/* Mẫu: Ngày vào sổ | Chứng từ | Tác giả | Tên sách | Ký hiệu PL | Số lượng | Nhà XB | Nơi XB | Năm | Đơn giá: Phát không | Mua | Môn loại | Số vào sổ | Biên bản xuất | Kiểm kê | Ghi chú | NCC */
+function keyTen(t){return norm(String(t||'').replace(/\([^)]*\)/g,' ')).replace(/[–—-]/g,' ').replace(/\btap mot\b/g,'tap 1').replace(/\btap hai\b/g,'tap 2').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function timSachTen(t){const k=keyTen(t);return S.Sach.find(s=>keyTen(s.nhanDe)===k)}
+function ngayVN(v){v=String(v||'').trim();let m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);if(m)return`${m[3]}-${z2(m[2])}-${z2(m[1])}`;m=v.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m)return m[0];
+  m=v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);if(m)return`20${m[3]}-${z2(m[1])}-${z2(m[2])}`;if(/^\d{5}$/.test(v)){const d=new Date(Math.round((+v-25569)*864e5));return iso(d)}return''}
+const nxbChuan=x=>{x=String(x||'').trim();return/^gi[aá]o d[uụ]c$/i.test(x)?'Giáo dục Việt Nam':x};
+function ghiChuBM(o){return[['Nơi XB',o.noi],['Môn loại',o.ml],['Số vào sổ',o.svs],['NCC',o.ncc],['Ghi chú',o.gc]].filter(x=>x[1]).map(x=>x[0]+': '+x[1]).join('; ')}
+function docGhiChuBM(g){const o={};String(g||'').split(';').forEach(p=>{const m=p.match(/^\s*(Nơi XB|Môn loại|Số vào sổ|NCC|Ghi chú):\s*(.*)$/);if(m)o[m[1]]=m[2].trim()});return o}
+function parseBienMuc(aoa){const s=v=>String(v??'').replace(/\s+/g,' ').trim();const hr=aoa.findIndex(r=>r.some(c=>/T[ÊE]N S[ÁA]CH/i.test(s(c)))&&r.some(c=>/S[ỐO] L[ƯU][ỢO]NG/i.test(s(c))));if(hr<0)return null;
+  const W=Math.max(...aoa.slice(hr,hr+3).map(r=>r.length));const H=[];for(let c=0;c<W;c++)H.push([0,1,2].map(i=>s((aoa[hr+i]||[])[c])).join(' | '));
+  const col=re=>H.findIndex(h=>re.test(h));
+  const C={ngay:col(/NG[ÀA]Y V[ÀA]O S[ỔO]/i),ct:col(/CH[ỨU]NG T[ỪU]/i),tg:col(/T[ÁA]C GI[ẢA]/i),ten:col(/T[ÊE]N S[ÁA]CH/i),kh:col(/K[ÝY] HI[ỆE]U/i),sl:col(/S[ỐO] L[ƯU][ỢO]NG/i),nxb:col(/Nh[àa] XB/i),noi:col(/N[ơo]i XB/i),nam:col(/\|\s*N[ăa]m$/i),
+    phat:col(/Ph[áa]t kh[ôo]ng/i),mua:col(/\|\s*Mua$/i),ml:col(/M[ÔO]N LO[ẠA]I/i),svs:col(/S[ỐO] V[ÀA]O S[ỔO]/i),gc:col(/GHI CH[ÚU]/i),ncc:col(/\bNCC\b/i)};
+  const sub=aoa.findIndex((r,i)=>i>=hr&&i<hr+4&&r.some(c=>/Nh[àa] XB|Ph[áa]t kh[ôo]ng/i.test(s(c))));const start=(sub>=0?sub:hr+2)+1;const out=[];
+  for(let r=start;r<aoa.length;r++){const row=aoa[r]||[];const g=k=>C[k]>=0?s(row[C[k]]):'';const ten=g('ten');const sl=parseInt(g('sl').replace(/[^\d]/g,''))||0;if(!ten||!sl)continue;
+    const pk=parseInt(g('phat').replace(/[^\d]/g,''))||0,mu=parseInt(g('mua').replace(/[^\d]/g,''))||0;
+    out.push({row:r+1,ngay:ngayVN(g('ngay')),ct:g('ct'),tg:g('tg'),ten:ten.replace(/\s+/g,' ').trim(),kh:g('kh'),sl,nxb:nxbChuan(g('nxb')),noi:g('noi'),nam:g('nam').replace(/[^\d]/g,'').slice(0,4),gia:String(pk||mu||''),nguon:pk&&!mu?'Cấp phát':'Mua',ml:g('ml'),svs:g('svs'),gc:g('gc'),ncc:g('ncc')})}
+  /* tên trùng nhau mà không ghi khối → gợi ý thêm khối theo số lượng (vd 102 → khối 6) */
+  const slKhoi={};out.forEach(x=>{const m=x.ten.match(/\s(\d{1,2})(\s+t[ậa]p\s*\d)?$/i);if(m){(slKhoi[x.sl]=slKhoi[x.sl]||new Set()).add(m[1])}});
+  const dem={};out.forEach(x=>{const k=keyTen(x.ten);dem[k]=(dem[k]||0)+1});
+  out.forEach(x=>{if(dem[keyTen(x.ten)]>1&&!/\s\d{1,2}(\s+t[ậa]p\s*\d)?$/i.test(x.ten)){const ks=slKhoi[x.sl];if(ks&&ks.size===1){x.goiY=x.ten+' '+[...ks][0]}x.trungTen=true}});
+  return out}
+async function docFileAOA(){return new Promise(res=>{const inp=document.createElement('input');inp.type='file';inp.accept='.xls,.xlsx';inp.onchange=async()=>{const f=inp.files[0];if(!f)return res(null);busy(true);
+  try{const X=await loadXLSX();const wb=X.read(await f.arrayBuffer());res(X.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:false,defval:''}))}catch(e){toast('Không đọc được file: '+e.message,'err');res(null)}finally{busy(false)}};inp.click()})}
+A.nhapBienMuc=async function(aoaIn){const aoa=aoaIn||await docFileAOA();if(!aoa)return;const L=parseBienMuc(aoa);
+  if(!L||!L.length)return toast('Không nhận ra mẫu biên mục (cần cột TÊN SÁCH, SỐ LƯỢNG, KÝ HIỆU PL…)','err');
+  const dms=sortDM(S.DanhMuc);const dSGK=(dms.find(d=>loaiSo(d.ten)==='SGK'&&!/dung chung/.test(norm(d.ten)))||dms.find(d=>loaiSo(d.ten)==='SGK')||dms[0]||{}).id;
+  const st=x=>{const s=timSachTen(x.goiY||x.ten);if(!s)return{s:null,trung:false};const y=namHocCua(x.ngay||today());const cung=S.BanSach.filter(b=>b.sachId===s.id&&namHocCua(b.ngayNhap)===y);const gia=+(cung.find(b=>b.donGia)||{}).donGia||+s.gia||0;return{s,trung:cung.length>=x.sl,n:cung.length,lech:cung.length>=x.sl&&gia&&+x.gia&&gia!==+x.gia?gia:0}};
+  const tong=L.reduce((a,x)=>a+x.sl,0);
+  const m=modal('📥 Nhập biên mục SGK (mẫu của trường)',`<p style="margin-top:0">Đọc được <b>${L.length}</b> dòng, tổng <b>${tong}</b> bản. Kiểm tra / sửa tên sách rồi bấm Nhập. Dòng bỏ chọn sẽ không nhập.</p>
+   ${L.some(x=>x.trungTen)?`<div class="note small" style="border-color:#fcd34d;background:#fffbeb">⚠ Có tên sách lặp lại mà không ghi khối (vd “Hoạt động trải nghiệm hướng nghiệp”). Máy đã <b>gợi ý thêm khối theo số lượng</b> (102 → 6, 97 → 7, 81 → 8) – hãy kiểm tra lại cho đúng.</div>`:''}
+   <div class="tw" style="max-height:52vh"><table class="t" id="bmT"><tr><th></th><th>Ngày vào sổ</th><th>Tên sách</th><th>Tác giả</th><th class="c">SL</th><th class="c">Đơn giá</th><th>Trong kho</th></tr>
+   ${L.map((x,i)=>{const r=st(x);return`<tr data-i="${i}"><td><input type="checkbox" class="bmC" ${r.trung?'':'checked'}></td><td class="small">${vn(x.ngay)||'<span style="color:var(--rd)">?</span>'}</td>
+     <td><input class="inp bmN" value="${esc(x.goiY||x.ten)}" style="min-width:210px;padding:4px 8px${x.trungTen?';border-color:#f59e0b':''}"></td><td class="small">${esc(x.tg)}</td><td class="c">${x.sl}</td><td class="c">${x.gia?Number(x.gia).toLocaleString('vi-VN'):''}<div class="small muted">${x.nguon}</div></td>
+     <td class="small bmS">${r.trung?`<span class="tag t-wa">đã có ${r.n} bản năm học này – bỏ qua</span>${r.lech?`<div style="color:#b45309">giá trong kho ${Number(r.lech).toLocaleString('vi-VN')}đ ≠ file</div>`:''}`:r.s?'✔ '+esc(r.s.nhanDe):'<i>tạo đầu sách mới</i>'}</td></tr>`}).join('')}</table></div>
+   <div class="fgrid">${fld('Danh mục cho đầu sách mới','dm',dSGK,{type:'select',options:dms.map(d=>[d.id,d.ten])})}${fld('','fill',true,{type:'check',text:'Bổ sung tác giả, ký hiệu phân loại cho đầu sách đã có (nếu đang để trống)'})}</div>
+   <p class="small muted">Mỗi bản sách được cấp số ĐKCB riêng; ngày nhập, chứng từ, đơn giá, năm XB, nguồn (Mua/Phát không) lưu theo từng lần nhập → tự vào Sổ đăng ký SGK. Nơi XB, môn loại, số vào sổ, NCC được lưu ở ghi chú của bản sách.</p>`,
+   {wide:1,ok:'Nhập vào kho',onOk:async el=>{const v=vals(el);const sel=$$('#bmT tr[data-i]',el).filter(tr=>$('.bmC',tr).checked).map(tr=>({...L[+tr.dataset.i],ten:$('.bmN',tr).value.trim()}));if(!sel.length)throw new Error('Chưa chọn dòng nào');
+    const t=today();const need=sel.reduce((a,x)=>a+x.sl,0);const pool=genDKCB(need);let pi=0;const sach=[],fix=[],ban=[];const tmp={};
+    for(const x of sel){const k=keyTen(x.ten);let s=tmp[k]||timSachTen(x.ten);
+      if(!s){s={id:uid('S'),nhanDe:x.ten,tacGia:x.tg,nxb:x.nxb||'Giáo dục Việt Nam',namXB:x.nam,danhMucId:v.dm,gia:x.gia,isbn:'',hashtag:'SGK',soPhanLoai:x.kh,moTa:'',noiBat:'',anhBia:'',ngayTao:t};sach.push(s);tmp[k]=s}
+      else if(v.fill&&!tmp[k]){const f={id:s.id};if(!s.tacGia&&x.tg)f.tacGia=x.tg;if(!s.soPhanLoai&&x.kh)f.soPhanLoai=x.kh;if(Object.keys(f).length>1)fix.push(f);tmp[k]=s}
+      const gc=ghiChuBM(x);for(let i=0;i<x.sl;i++)ban.push({dkcb:pool[pi++],sachId:s.id,tinhTrang:'Sẵn sàng',ngayNhap:x.ngay||t,nguon:x.nguon,ghiChu:gc,chungTu:x.ct,donGia:x.gia,namXB:x.nam})}
+    const ops=[];if(sach.length)ops.push({t:'upsert',table:'Sach',rows:sach});if(fix.length)ops.push({t:'upsert',table:'Sach',rows:fix});ops.push({t:'upsert',table:'BanSach',rows:ban});
+    if(!await commit(ops,`Đã nhập ${sach.length} đầu sách mới, ${ban.length} bản (${ban[0].dkcb} → ${ban[ban.length-1].dkcb})`))return false;rerender()}});
+  $('#bmT',m.root).addEventListener('input',e=>{const tr=e.target.closest('tr[data-i]');if(!tr||!e.target.classList.contains('bmN'))return;const s=timSachTen(e.target.value);$('.bmS',tr).innerHTML=s?'✔ '+esc(s.nhanDe):'<i>tạo đầu sách mới</i>'})};
+/* Xuất biên mục theo đúng mẫu của trường (để nộp / nhập sang phần mềm khác) */
+A.xuatBienMuc=function(){const Ys=dsNamHoc();const dms=sortDM(S.DanhMuc);const def=new Set(dmSGK());
+  const m=modal('📤 Xuất biên mục SGK (mẫu của trường)',`<div class="fgrid">${fld('Năm học nhập','y',String(namHocNay()),{type:'select',options:[['all','— Tất cả —'],...Ys.map(y=>[String(y),nhTen(y)])]})}
+   <div class="fl full"><label>Danh mục</label><div class="acts">${dms.map(d=>`<label class="chk"><input type="checkbox" data-dm="${esc(d.id)}" ${def.has(d.id)?'checked':''}> ${esc(d.ten)}</label>`).join('')}</div></div></div>`,
+   {ok:'Xuất Excel',onOk:async el=>{const v=vals(el);const ids=new Set($$('[data-dm]:checked',el).map(x=>x.dataset.dm));const sm=mapBy(S.Sach,'id');
+    const g={};S.BanSach.forEach(b=>{const s=sm[b.sachId];if(!s||!ids.has(s.danhMucId))return;if(v.y!=='all'&&namHocCua(b.ngayNhap)!==+v.y)return;const k=[b.ngayNhap,b.sachId,b.chungTu||'',b.donGia||s.gia||'',b.nguon||'',b.namXB||'',b.ghiChu&&/Nơi XB|NCC|Môn loại/.test(b.ghiChu)?b.ghiChu:''].join('|');(g[k]=g[k]||[]).push(b)});
+    const rows=Object.values(g).sort((a,b)=>String(a[0].ngayNhap).localeCompare(String(b[0].ngayNhap))||sm[a[0].sachId].nhanDe.localeCompare(sm[b[0].sachId].nhanDe,'vi',{numeric:true}));if(!rows.length)throw new Error('Không có bản sách nào phù hợp');
+    const aoa=[['Ngày vào sổ','Chứng từ','TÁC GIẢ','VÀ TÊN SÁCH','KÝ HIỆU PL','SỐ LƯỢNG','XUẤT BẢN (5)','','','ĐƠN GIÁ (6)','','Môn loại (7)','Số vào sổ','Ngày và số\nbiên bản\nxuất\n(9)','KIỂM KÊ','GHI CHÚ\n(11)',''],['0','1','2','3','4','5','6','7','8','9','10','','','','','','NCC'],['(3)','','(3)','(3)','','','Nhà XB','Nơi XB','Năm','Phát không','Mua','','','','','','']];
+    rows.forEach(L=>{const b=L[0],s=sm[b.sachId];const o=docGhiChuBM(b.ghiChu);const gia=b.donGia||s.gia||'';const pk=/cấp phát|tặng|phát/i.test(b.nguon||'');
+      aoa.push([vn(b.ngayNhap),b.chungTu||'',s.tacGia||'',s.nhanDe,s.soPhanLoai||'',String(L.length),s.nxb==='Giáo dục Việt Nam'?'Giáo Dục':(s.nxb||''),o['Nơi XB']||'',b.namXB||s.namXB||'',pk?String(gia):'',pk?'':String(gia),o['Môn loại']||'',o['Số vào sổ']||'','','',o['Ghi chú']||'',o['NCC']||''])});
+    await xuatAOA('Bienmuc_SGK_'+(v.y==='all'?'tat_ca':v.y),aoa.map(r=>r.map(x=>String(x??''))),[[0,6,0,8],[0,9,0,10],[0,11,2,11],[0,12,2,12],[0,13,2,13],[0,15,2,15]],[12,10,22,34,11,9,11,10,7,10,10,10,8,12,8,14,8])}})};
 
 /* ---------- Excel ---------- */
 let XP=null;
