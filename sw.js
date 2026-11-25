@@ -5,7 +5,7 @@
 const CACHE = 'thuvien-v2';
 const LIB = 'thuvien-lib-v1';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
-const LIBS = ['https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js', 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'];
+const LIBS = ['https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.min.js', 'https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js', 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'];
 self.addEventListener('install', e => {
   e.waitUntil(Promise.all([
     caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}),
@@ -17,7 +17,7 @@ self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Pr
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   const u = new URL(e.request.url);
-  if (u.hostname === 'cdn.jsdelivr.net') {
+  if (u.hostname === 'cdn.jsdelivr.net' || u.hostname === 'fastly.jsdelivr.net') {
     e.respondWith(caches.open(LIB).then(c => c.match(e.request.url).then(hit => hit || fetch(e.request).then(r => { if (r.ok || r.type === 'opaque') c.put(e.request.url, r.clone()); return r; }))));
     return;
   }

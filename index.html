@@ -3016,6 +3016,53 @@ openTN=function(id){const src=S||P;const t=src&&src.TaiNguyen.find(x=>x.id===id)
   if(t.fileId&&t.quyen==='ban-doc'){if(S&&PASS)return(async()=>{busy(true);try{const j=await BE().post({action:'tnFileAd',pass:PASS,id});if(!j.ok)throw new Error(j.error);await moFileB64(t.tieuDe,j)}catch(e){toast(e.message,'err')}finally{busy(false)}})();return moTNBaoVe(t)}
   return _openTN(id)};
 
+/* ================== PHẦN 20: QUÉT MÃ TRÊN IPHONE – bộ đọc ZXing-C++ (WebAssembly) + chụp ảnh để quét ================== */
+const BD_FORMATS=['code_128','code_39','code_93','ean_13','ean_8','upc_a','upc_e','qr_code','codabar','itf'];
+let BDW=null;/* bộ đọc dự phòng (WebAssembly) cho trình duyệt không có BarcodeDetector, vd Safari trên iPhone */
+function loadBDWasm(){if(BDW)return BDW;BDW=(async()=>{if(!(window.BarcodeDetectionAPI&&BarcodeDetectionAPI.BarcodeDetector))await loadScript('https://cdn.jsdelivr.net/npm/barcode-detector@3.2.3/dist/iife/ponyfill.min.js');
+  const C=BarcodeDetectionAPI.BarcodeDetector;const d=new C({formats:BD_FORMATS});
+  /* chạy thử 1 lần để tải sẵn phần lõi .wasm (khoảng 1 MB, lần sau đã lưu trên máy) */
+  const cv=document.createElement('canvas');cv.width=cv.height=8;await Promise.race([d.detect(cv),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),20000))]);return d})();
+  BDW.catch(()=>{BDW=null});return BDW}
+async function getDetector(){if('BarcodeDetector' in window){try{const sup=await BarcodeDetector.getSupportedFormats();const fm=BD_FORMATS.filter(f=>sup.includes(f));if(fm.length)return{d:new BarcodeDetector({formats:fm}),k:'native'}}catch(e){}}
+  try{return{d:await loadBDWasm(),k:'wasm'}}catch(e){return null}}
+async function scanStart(video,onCode){scanStop();SCAN.cb=onCode;SCAN.lastCb=onCode;SCAN.last='';SCAN.video=video;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error(location.protocol==='https:'?'Trình duyệt không hỗ trợ camera':'Camera chỉ hoạt động khi mở trang qua https:// (ví dụ địa chỉ GitHub Pages)');
+  video.setAttribute('playsinline','');video.setAttribute('webkit-playsinline','');video.muted=true;
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const cons={video:{facingMode:{ideal:'environment'},width:{ideal:ios?1920:1920},height:{ideal:1080},frameRate:{ideal:30}},audio:false};
+  const det=await getDetector();
+  if(det){SCAN.det=det.d;
+    try{SCAN.stream=await navigator.mediaDevices.getUserMedia(cons)}catch(e){if(e.name==='NotAllowedError')throw e;SCAN.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false})}
+    video.srcObject=SCAN.stream;await video.play();await camTune();
+    /* bộ đọc WebAssembly: quét cả khung hình + vùng giữa phóng to (mã nhỏ, xa vẫn đọc được) */
+    const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});let lan=0;
+    const loop=async()=>{if(!SCAN.stream)return;try{if(video.readyState>=2){let r;
+        if(det.k==='native')r=await SCAN.det.detect(video);
+        else{const vw=video.videoWidth,vh=video.videoHeight;lan++;if(lan%2){cv.width=Math.min(vw,1280);cv.height=Math.round(vh*cv.width/vw);cx.drawImage(video,0,0,cv.width,cv.height)}
+          else{const cw=vw*.6,ch=vh*.45;cv.width=Math.round(cw*1.4);cv.height=Math.round(ch*1.4);cx.drawImage(video,(vw-cw)/2,(vh-ch)/2,cw,ch,0,0,cv.width,cv.height)}r=await SCAN.det.detect(cv)}
+        if(r&&r.length)scanEmit(r[0].rawValue)}}catch(e){}
+      if(!SCAN.stream)return;if(video.requestVideoFrameCallback)video.requestVideoFrameCallback(()=>{SCAN.timer=setTimeout(loop,det.k==='native'?30:10)});else SCAN.timer=setTimeout(loop,det.k==='native'?50:40)};loop();
+    return'native'}
+  /* dự phòng cuối: ZXing JS */
+  if(!window.ZXing)await loadScript('https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js');
+  const hints=new Map();try{hints.set(ZXing.DecodeHintType.TRY_HARDER,true)}catch(e){}
+  SCAN.zx=new ZXing.BrowserMultiFormatReader(hints,60);
+  await SCAN.zx.decodeFromConstraints({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}},video,(res)=>{if(res)scanEmit(res.getText())});await camTune();return'zxing'}
+/* Ẩn nút đèn / phóng to khi máy không hỗ trợ (iPhone thường không cho) */
+const _camTune=camTune;camTune=async function(){await _camTune();const c=camCaps();$$('.camt').forEach(t=>{const b=t.querySelectorAll('button');if(b[0])b[0].style.display=c.torch?'':'none';if(b[1])b[1].style.display=c.zoom?'':'none'})};
+/* Chụp ảnh mã vạch bằng camera của máy (lấy nét gần tốt hơn) rồi đọc */
+function camTools(){return`<div class="camt"><button type="button" class="btn sm" onclick="A.camTorch(this)">🔦 Đèn</button><button type="button" class="btn sm" onclick="A.camZoom(this)">🔍 ${CAMX.zoom}×</button><button type="button" class="btn sm" onclick="A.chupMa()" title="Chụp ảnh mã vạch bằng camera của máy rồi đọc">📸 Chụp</button></div>`}
+A.chupMa=function(){const cb=SCAN.cb||SCAN.lastCb||(location.hash.includes('/quet')?qcCode:null);if(!cb)return toast('Bật camera hoặc mở trang Quét trước','err');
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.setAttribute('capture','environment');
+  inp.onchange=async()=>{const f=inp.files[0];if(!f)return;busy(true);try{const code=await docMaTuAnh(f);if(!code)throw new Error('Không đọc được mã trong ảnh. Chụp gần hơn, rõ nét, mã vạch nằm ngang và chiếm phần lớn ảnh.');beep(true);cb(code)}catch(e){beep(false);toast(e.message,'err')}finally{busy(false)}};inp.click()};
+async function docMaTuAnh(file){const det=await getDetector();const bmp=await createImageBitmap(file);const cv=document.createElement('canvas');const sc=Math.min(1,2200/Math.max(bmp.width,bmp.height));cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+  if(det){const r=await det.d.detect(cv);if(r&&r.length)return r[0].rawValue}
+  if(!window.ZXing)await loadScript('https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js');
+  try{const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);const rd=new ZXing.BrowserMultiFormatReader(hints);const r=await rd.decodeFromImageUrl(cv.toDataURL('image/jpeg',.92));return r&&r.getText()}catch(e){return''}}
+/* Tải sẵn bộ đọc trên iPhone khi mở trang Quét để lần bật camera đầu không phải chờ */
+if(!('BarcodeDetector' in window))setTimeout(()=>{if(/\/quet/.test(location.hash))loadBDWasm()},1500);
+
 /* ---------- Excel ---------- */
 let XP=null;
 function loadXLSX(){if(window.XLSX)return Promise.resolve(window.XLSX);if(XP)return XP;
